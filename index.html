@@ -43,7 +43,7 @@
   color-scheme:light;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:var(--t-md);line-height:1.5;
   -webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
   padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
@@ -134,7 +134,7 @@ footer.foot p+p{margin-top:4px}
 @media (min-width:900px){.cols{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:start}.cols .sticky{position:sticky;top:76px}}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--r-sm);
-  font:inherit;font-weight:650;font-size:var(--t-md);border:1px solid transparent;cursor:pointer;text-decoration:none;text-align:center;
+  font:inherit;font-weight:650;font-size:var(--t-md);border:1px solid transparent;cursor:pointer;text-decoration:none;text-align:center;line-height:1.25;
   transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease)}
 .btn-primary{background:var(--tide);color:var(--on-tide)}
 .btn-primary:hover{background:var(--tide-hover);color:var(--on-tide)}
@@ -150,7 +150,7 @@ footer.foot p+p{margin-top:4px}
 .btn.sm{min-height:40px;padding:0 12px;font-size:var(--t-sm)}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
 .actions{display:flex;gap:var(--s3);flex-wrap:wrap}
-.actions>.btn{flex:1 1 160px}
+.actions>.btn{flex:1 1 200px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .field{display:block}
@@ -228,27 +228,28 @@ table.ptable{width:100%;border-collapse:separate;border-spacing:0;background:var
 @media (min-width:900px){table.only-wide{display:table}.only-narrow{display:none}}
 
 /* ---------- the composer: a policy written as a sentence ---------- */
-.composer{font-size:var(--t-2xl);font-weight:500;line-height:1.72;letter-spacing:-.015em;color:var(--ink);margin:0;overflow-wrap:anywhere}
-.composer .tok{font:inherit;font-weight:700;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--rule-strong);
-  border-radius:0;padding:0 3px 1px;margin:0 1px;height:auto;min-height:0;line-height:1.18;cursor:pointer;appearance:none;-webkit-appearance:none;vertical-align:baseline;max-width:100%}
-.composer .tok:hover{border-bottom-color:var(--ink-3)}
-.composer .tok:focus{outline:none;border-bottom-color:var(--tide);background:var(--tide-soft)}
-.composer .tok:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-.composer .tok[aria-invalid="true"]{border-bottom-color:var(--bad);color:var(--bad)}
+.composer{font-size:clamp(18px,2.6vw,22px);font-weight:500;line-height:2.25;letter-spacing:-.01em;color:var(--ink-2);margin:0}
+.composer .tok{font:inherit;font-size:.92em;font-weight:700;line-height:1.3;color:var(--ink);background:var(--sunken);border:1px solid var(--rule-strong);
+  border-radius:8px;padding:7px 11px;margin:0 2px;height:auto;min-height:0;cursor:pointer;appearance:none;-webkit-appearance:none;vertical-align:baseline;max-width:100%;
+  field-sizing:content;transition:border-color .15s var(--ease),background-color .15s var(--ease)}
+.composer .tok:hover{border-color:var(--ink-3)}
+.composer .tok:focus{outline:none;border-color:var(--tide);box-shadow:0 0 0 3px color-mix(in srgb,var(--tide) 25%,transparent)}
+.composer .tok[aria-invalid="true"]{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.composer select.tok{padding-right:26px;background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}
 .composer select.tok option{font-size:16px;font-weight:500;color:var(--ink);background:var(--surface)}
-.composer .tok{field-sizing:content}
 .composer input.tok{cursor:text}
-.composer input.tok.n{width:4.4ch;min-width:2.6ch;text-align:center}
-.composer input.tok.n.w5{width:5.4ch}
-@supports (field-sizing:content){.composer input.tok.n,.composer input.tok.n.w5{width:auto;padding:0 6px}}
-.composer select.tok,.composer input.tok,.composer .datetok{padding-top:9px;margin-top:-9px}
+.composer input.tok.n{width:4.6ch;min-width:3ch;text-align:center}
+.composer input.tok.n.w5{width:5.6ch}
+@supports (field-sizing:content){.composer input.tok.n,.composer input.tok.n.w5{width:auto}}
 .composer .datetok{position:relative;display:inline-block;white-space:nowrap}
-.composer .datetok:focus-within{border-bottom-color:var(--tide);background:var(--tide-soft)}
-.composer .datetok:focus-within:has(:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
+.composer .datetok:focus-within{border-color:var(--tide);box-shadow:0 0 0 3px color-mix(in srgb,var(--tide) 25%,transparent)}
 .composer .dateinp{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;border:0;cursor:pointer;font:inherit;color-scheme:inherit}
 .composer .dateinp::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
-.composer .trig{color:var(--trigger)}
-.composer .tok.trig{color:var(--trigger);border-bottom-color:var(--trigger-mark)}
+.composer .trig{color:var(--trigger);font-weight:700}
+.composer .tok.trig{color:var(--trigger);background:var(--trigger-soft);border-color:color-mix(in srgb,var(--trigger-mark) 55%,var(--rule))}
+.composer-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s2)}
+.composer-head span{font-size:var(--t-xs);color:var(--ink-3);font-weight:600}
 .issues{margin-top:var(--s3);font-size:var(--t-sm);color:var(--bad);font-weight:600}
 .issues:empty{display:none}
 details.tune{margin-top:var(--s5);border-top:1px solid var(--rule)}
@@ -1223,8 +1224,8 @@ async function viewHome(root) {
         role("earn", "earn", "I want to", "Earn", "Back the pool with GEN and collect premiums, with hard caps on every risk.", "#/pool"),
         role("look", "look", "I am just", "Exploring", isSandbox() ? "Run three guided scenarios and watch a policy pay, expire and refund." : "See every policy, its trigger and how it settled.", isSandbox() ? "#/lab" : "#/policies"))),
     h("section", { class: "section", "aria-labelledby": "writeTitle" },
-      h("h2", { id: "writeTitle", text: "Write your cover in one sentence" }),
-      h("div", { class: "panel" }, comp,
+      h("h2", { id: "writeTitle", text: "Write your cover" }),
+      h("div", { class: "panel" }, h("div", { class: "composer-head" }, h("span", { text: "Tap any highlighted part to change it" })), comp,
         h("div", { class: "actions", style: "margin-top:20px;max-width:460px" }, go, h("a", { class: "btn btn-secondary", href: "#/policies", text: "See existing policies" })))),
     h("section", { class: "section", "aria-labelledby": "howTitle" },
       h("h2", { id: "howTitle", text: "What happens after you buy" }),
@@ -1379,7 +1380,7 @@ async function viewBuy(root, params) {
 
   put(root,
     h("div", { class: "pagehead" }, h("div", {}, h("h1", { text: "Write your cover" }),
-      h("p", { text: "Fill in the underlined words. The sentence is exactly what the contract will check." }))),
+      h("p", { text: "Tap any highlighted part to change it. The sentence is exactly what the contract will check." }))),
     h("div", { class: "cols" },
       h("section", { class: "panel", "aria-label": "Policy terms" }, comp),
       h("div", { class: "sticky" }, quoteBox)));
