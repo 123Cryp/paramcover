@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#F2F4F3" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F171C" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0B1418" id="themeColor">
+<script>try{if(localStorage.getItem("paramcover.theme")==="light"){document.documentElement.dataset.theme="light";document.getElementById("themeColor").content="#F2F4F3";}}catch(e){}</script>
 <meta name="description" content="ParamCover: parametric weather and earthquake cover on GenLayer. Write the trigger, pay the premium, get paid automatically if it happens.">
 <title>ParamCover</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,29 +13,34 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
 <style>
 :root{
-  --paper:#F2F4F3; --surface:#FFFFFF; --sunken:#E9EDEC; --ink:#15232C; --ink-2:#4A5A65; --ink-3:#66757F;
+  --paper:#0B1418; --surface:#121E25; --raised:#16242C; --sunken:#1A2A33; --ink:#EAF1F3; --ink-2:#AFC0C8; --ink-3:#8C9EA8;
+  --rule:#22333C; --rule-strong:#30454F;
+  --tide:#62B8C9; --tide-hover:#84CBD8; --tide-soft:#14323B; --on-tide:#06232A;
+  --trigger:#F4B547; --trigger-soft:#352A12; --trigger-mark:#F4B547;
+  --ok:#5FCB8C; --ok-soft:#133024; --bad:#F28B7F; --bad-soft:#3A1B18; --muted-soft:#1C2B33;
+  --focus:#84CBD8;
+  --glow-warm:rgba(244,181,71,.20); --glow-cool:rgba(98,184,201,.16);
+  --role-cover:#F4B547; --role-earn:#62B8C9; --role-look:#5FCB8C;
+  --font:"Schibsted Grotesk",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --t-xs:12.5px; --t-sm:14px; --t-md:16px; --t-lg:19px; --t-xl:24px; --t-2xl:clamp(23px,5.2vw,34px); --t-display:clamp(36px,7.4vw,60px);
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:20px;
+  --shadow-1:0 1px 0 rgba(0,0,0,.25); --shadow-pop:0 16px 48px rgba(0,0,0,.55);
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --nav-h:64px; --side-w:236px;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --paper:#F2F4F3; --surface:#FFFFFF; --raised:#FFFFFF; --sunken:#E9EDEC; --ink:#15232C; --ink-2:#4A5A65; --ink-3:#66757F;
   --rule:#D6DDE1; --rule-strong:#B9C4CA;
   --tide:#0E5A6B; --tide-hover:#0A4856; --tide-soft:#E1EEF0; --on-tide:#FFFFFF;
   --trigger:#9A5D00; --trigger-soft:#FBEFD9; --trigger-mark:#D98E04;
   --ok:#1D6F45; --ok-soft:#E0F0E6; --bad:#A8261B; --bad-soft:#F8E3E0; --muted-soft:#E8ECEE;
   --focus:#0E5A6B;
-  --font:"Schibsted Grotesk",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  --t-xs:12.5px; --t-sm:14px; --t-md:16px; --t-lg:19px; --t-xl:24px; --t-2xl:clamp(23px,5.2vw,34px);
-  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
-  --r-sm:6px; --r-md:10px; --r-lg:14px;
+  --glow-warm:rgba(217,142,4,.14); --glow-cool:rgba(14,90,107,.10);
+  --role-cover:#B86F00; --role-earn:#0E5A6B; --role-look:#1D6F45;
   --shadow-1:0 1px 0 rgba(21,35,44,.04); --shadow-pop:0 12px 40px rgba(21,35,44,.18);
-  --ease:cubic-bezier(.2,.7,.2,1);
-  --nav-h:64px; --side-w:236px;
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --paper:#0F171C; --surface:#16222A; --sunken:#1B2932; --ink:#E6EEF1; --ink-2:#AEBDC5; --ink-3:#8D9DA7;
-    --rule:#26363F; --rule-strong:#354853;
-    --tide:#5FB3C4; --tide-hover:#7CC5D4; --tide-soft:#183740; --on-tide:#08252C;
-    --trigger:#F2B33D; --trigger-soft:#3A2C10; --trigger-mark:#F2B33D;
-    --ok:#62C98E; --ok-soft:#173326; --bad:#F08A7E; --bad-soft:#3C1C19; --muted-soft:#1F2D35;
-    --focus:#7CC5D4; --shadow-pop:0 12px 40px rgba(0,0,0,.55);
-  }
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -229,7 +234,7 @@ table.ptable{width:100%;border-collapse:separate;border-spacing:0;background:var
 .composer .tok:focus{outline:none;border-bottom-color:var(--tide);background:var(--tide-soft)}
 .composer .tok:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .composer .tok[aria-invalid="true"]{border-bottom-color:var(--bad);color:var(--bad)}
-.composer select.tok option{font-size:16px;font-weight:500;color:#15232C;background:#fff}
+.composer select.tok option{font-size:16px;font-weight:500;color:var(--ink);background:var(--surface)}
 .composer .tok{field-sizing:content}
 .composer input.tok{cursor:text}
 .composer input.tok.n{width:4.4ch;min-width:2.6ch;text-align:center}
@@ -329,6 +334,75 @@ dialog[open]{animation:pop .2s var(--ease)}
 .banner{display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap;padding:10px var(--s4);background:var(--trigger-soft);color:var(--ink);border-bottom:1px solid var(--rule);font-size:var(--t-sm)}
 .banner[hidden]{display:none}
 
+/* ---------- theme toggle ---------- */
+.iconbtn{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--rule-strong);background:var(--surface);color:var(--ink-2);border-radius:var(--r-sm);cursor:pointer;flex:none}
+.iconbtn:hover{color:var(--ink);border-color:var(--ink-3)}
+
+/* ---------- home hero ---------- */
+.hero{position:relative;overflow:hidden;border:1px solid var(--rule);border-radius:var(--r-xl);padding:var(--s6) var(--s5);
+  background:radial-gradient(70% 90% at 100% 0%,var(--glow-warm),transparent 62%),radial-gradient(60% 80% at 0% 100%,var(--glow-cool),transparent 60%),var(--surface)}
+.hero-grid{display:grid;gap:var(--s6);grid-template-columns:minmax(0,1fr)}
+@media (min-width:1080px){.hero-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);align-items:start}}
+@media (max-width:420px){.hero{padding:var(--s5) var(--s4)}}
+.live{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 10px;border:1px solid var(--rule-strong);border-radius:999px;font-size:var(--t-xs);color:var(--ink-2);background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
+.live b{color:var(--ink)}
+.display{font-size:var(--t-display);font-weight:800;line-height:1.02;letter-spacing:-.035em;margin:var(--s4) 0 0;max-width:13ch;text-wrap:balance}
+.lede{margin-top:var(--s4);font-size:clamp(16px,2.3vw,19px);line-height:1.55;color:var(--ink-2);max-width:46ch}
+.hero .actions{margin-top:var(--s5);max-width:480px}
+.herostats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:var(--s6) 0 0;border:1px solid var(--rule);border-radius:var(--r-lg);overflow:hidden;background:var(--rule);gap:1px}
+@media (min-width:640px) and (max-width:1079px){.herostats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.herostats>div{background:color-mix(in srgb,var(--surface) 92%,transparent);padding:var(--s4);min-width:0}
+.herostats dt{font-size:var(--t-xs);color:var(--ink-3);font-weight:600}
+.herostats dd{margin:4px 0 0;font-size:clamp(20px,4.6vw,26px);font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+.herostats dd small{font-size:var(--t-xs);font-weight:600;color:var(--ink-2);margin-left:3px}
+.herostats .sub{display:block;margin-top:4px;font-size:var(--t-xs);font-weight:600;color:var(--trigger)}
+
+/* ---------- live activity ---------- */
+.feed{background:color-mix(in srgb,var(--raised) 88%,transparent);border:1px solid var(--rule-strong);border-radius:var(--r-lg);padding:var(--s4) var(--s4) 0;box-shadow:var(--shadow-pop)}
+.feed-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s2)}
+.feed-head h2{font-size:var(--t-sm);font-weight:700;color:var(--ink-2);letter-spacing:0}
+.feed-head .src{font-size:var(--t-xs);font-weight:700;color:var(--ok);display:inline-flex;align-items:center;gap:6px}
+.feed-head .src::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.feed ol{list-style:none;margin:0;padding:0}
+.feed li a{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:var(--s3);align-items:center;padding:10px 0;border-top:1px solid var(--rule);color:var(--ink);text-decoration:none;min-height:56px}
+.feed li:first-child a{border-top:0}
+.feed li a:hover .ev-t{text-decoration:underline}
+.feed .ev-i{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--sunken);color:var(--ink-2)}
+.feed .ev-i.paid{background:var(--ok-soft);color:var(--ok)}
+.feed .ev-i.bought{background:var(--tide-soft);color:var(--tide)}
+.feed .ev-i.void{background:var(--trigger-soft);color:var(--trigger)}
+.feed .ev-t{display:block;font-size:var(--t-sm);font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .ev-s{display:block;font-size:var(--t-xs);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .ev-a{font-size:var(--t-xs);color:var(--ink-3);white-space:nowrap}
+.feed-foot{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3) var(--s4);margin:var(--s2) calc(-1 * var(--s4)) 0;padding:var(--s4);border-top:1px solid var(--rule-strong)}
+.feed-foot b{display:block;font-size:var(--t-lg);font-weight:800;letter-spacing:-.02em}
+.feed-foot span{display:block;font-size:var(--t-xs);color:var(--ink-3)}
+.feed-foot .bal{grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:var(--s3);border-top:1px dashed var(--rule-strong)}
+.feed-foot .bal span{display:inline}
+.feed-foot .bal b{color:var(--ok);display:inline-flex;align-items:center;gap:6px}
+.feed-foot .bal.off b{color:var(--bad)}
+.feed li{animation:rise .5s var(--ease) both}
+.feed li:nth-child(2){animation-delay:.06s}.feed li:nth-child(3){animation-delay:.12s}.feed li:nth-child(4){animation-delay:.18s}.feed li:nth-child(5){animation-delay:.24s}.feed li:nth-child(6){animation-delay:.3s}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- role entry ---------- */
+.roles{display:grid;gap:var(--s3);grid-template-columns:minmax(0,1fr)}
+@media (min-width:760px){.roles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.role{--c:var(--role-cover);position:relative;display:grid;grid-template-columns:84px minmax(0,1fr);gap:var(--s4);align-items:center;padding:var(--s4) var(--s4) var(--s4) var(--s3);
+  border:1px solid color-mix(in srgb,var(--c) 30%,var(--rule));border-radius:var(--r-lg);text-decoration:none;color:var(--ink);min-height:132px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c) 14%,var(--surface)),var(--surface) 70%);transition:border-color .2s var(--ease),transform .2s var(--ease)}
+.role:hover{border-color:var(--c);color:var(--ink);transform:translateY(-2px)}
+.role.earn{--c:var(--role-earn)} .role.look{--c:var(--role-look)}
+.role svg.ill{width:84px;height:84px}
+.role .k{font-size:var(--t-xs);color:var(--ink-3);font-weight:600}
+.role .t{display:block;font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--c);margin-top:2px}
+.role .d{display:block;font-size:var(--t-sm);color:var(--ink-2);margin-top:4px;padding-right:36px}
+.role .go{position:absolute;right:14px;bottom:14px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:var(--paper)}
+.role .go svg{width:16px;height:16px;stroke-width:2.2}
+.section{margin-top:var(--s7)}
+.section>h2{font-size:var(--t-xl);margin-bottom:var(--s4)}
+
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
 }
@@ -341,6 +415,7 @@ dialog[open]{animation:pop .2s var(--ease)}
   <a class="brand" href="#/" aria-label="ParamCover home"><span id="brandMark"></span><span>ParamCover</span></a>
   <span class="env" id="envBadge" hidden></span>
   <span class="grow"></span>
+  <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to light theme"></button>
   <button class="walletbtn" id="walletBtn" type="button" aria-haspopup="dialog"><span class="dot" aria-hidden="true"></span><span class="lbl" id="walletLbl">Connect wallet</span></button>
 </header>
 <div class="banner" id="netBanner" role="alert" hidden>
@@ -390,6 +465,11 @@ const ICONS = {
   x: ["M6 6l12 12M18 6L6 18"],
   copy: ["M9 9h11v11H9z", "M5 15H4V4h11v1"],
   back: ["M15 6l-6 6 6 6"],
+  arrow: ["M5 12h14M13 6l6 6-6 6"],
+  sun2: ["M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z", "M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"],
+  moon: ["M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"],
+  check: ["M5 12l5 5 9-10"],
+  coin: ["M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z", "M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2s1.1 1.6 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1 0-2-.5-2.5-1.5M12 6.5v1.5M12 16v1.5"],
 };
 function icon(name, size) {
   const svg = document.createElementNS(SVGNS, "svg");
@@ -412,6 +492,48 @@ function markSvg() {
     ["path", { d: "M5 19c3 0 4-9 7-9s3 6 5 6 3-3 6-3", fill: "none", stroke: "var(--on-tide)", "stroke-width": "2", "stroke-linecap": "round" }]];
   for (const [tag, attrs] of parts) { const el = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v); svg.appendChild(el); }
   return svg;
+}
+function svgEl(tag, attrs, ...kids) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+  kids.forEach((k) => el.appendChild(k));
+  return el;
+}
+function illustration(kind) {
+  const svg = svgEl("svg", { viewBox: "0 0 84 84", class: "ill", "aria-hidden": "true" });
+  const c = "var(--c)", ink = "var(--ink)", soft = "color-mix(in srgb, var(--c) 22%, transparent)";
+  svg.appendChild(svgEl("rect", { x: "2", y: "2", width: "80", height: "80", rx: "18", fill: soft }));
+  if (kind === "cover") {
+    svg.append(
+      svgEl("path", { d: "M24 30a10 10 0 0 1 19-4 8 8 0 0 1 15 4 7 7 0 0 1-1 14H25a7 7 0 0 1-1-14z", fill: "var(--surface)", stroke: ink, "stroke-width": "2.2", "stroke-linejoin": "round" }),
+      svgEl("path", { d: "M30 50l-2 6M40 50l-2 6M50 50l-2 6", stroke: "var(--role-earn)", "stroke-width": "2.6", "stroke-linecap": "round" }),
+      svgEl("path", { d: "M14 62h56", stroke: c, "stroke-width": "2.4", "stroke-dasharray": "4 4", "stroke-linecap": "round" }),
+      svgEl("path", { d: "M40 74V60a10 10 0 0 1 20 0", fill: "none", stroke: c, "stroke-width": "3", "stroke-linecap": "round" }));
+  } else if (kind === "earn") {
+    svg.append(
+      svgEl("path", { d: "M14 58c6-3 10 3 16 0s10-3 16 0 10 3 16 0 6-1 8 0", fill: "none", stroke: c, "stroke-width": "2.6", "stroke-linecap": "round" }),
+      svgEl("ellipse", { cx: "42", cy: "50", rx: "14", ry: "5", fill: "var(--surface)", stroke: ink, "stroke-width": "2.2" }),
+      svgEl("ellipse", { cx: "42", cy: "42", rx: "14", ry: "5", fill: "var(--surface)", stroke: ink, "stroke-width": "2.2" }),
+      svgEl("ellipse", { cx: "42", cy: "34", rx: "14", ry: "5", fill: c, stroke: ink, "stroke-width": "2.2" }),
+      svgEl("path", { d: "M58 26l6-6m0 0h-5m5 0v5", fill: "none", stroke: c, "stroke-width": "2.6", "stroke-linecap": "round", "stroke-linejoin": "round" }));
+  } else {
+    svg.append(
+      svgEl("rect", { x: "16", y: "46", width: "8", height: "18", rx: "2", fill: c }),
+      svgEl("rect", { x: "28", y: "36", width: "8", height: "28", rx: "2", fill: c, opacity: ".7" }),
+      svgEl("rect", { x: "40", y: "50", width: "8", height: "14", rx: "2", fill: c, opacity: ".45" }),
+      svgEl("circle", { cx: "54", cy: "32", r: "11", fill: "var(--surface)", stroke: ink, "stroke-width": "2.6" }),
+      svgEl("path", { d: "M62 40l9 9", stroke: ink, "stroke-width": "3.2", "stroke-linecap": "round" }));
+  }
+  return svg;
+}
+function timeAgo(epoch) {
+  const d = nowSec() - Number(epoch);
+  if (!Number(epoch)) return "";
+  if (d < 60) return "just now";
+  if (d < 3600) return Math.floor(d / 60) + "m ago";
+  if (d < 86400) return Math.floor(d / 3600) + "h ago";
+  if (d < 86400 * 30) return Math.floor(d / 86400) + "d ago";
+  return new Date(Number(epoch) * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 function h(tag, props, ...kids) {
   const el = document.createElement(tag);
@@ -562,7 +684,8 @@ function drawWallet() {
   const btn = $("walletBtn");
   btn.classList.toggle("on", !!account && net.ok);
   btn.classList.toggle("warn", !!account && !net.ok);
-  $("walletLbl").textContent = account ? short(account) : "Connect wallet";
+  const narrow = window.matchMedia && window.matchMedia("(max-width: 419px)").matches;
+  $("walletLbl").textContent = account ? (narrow ? account.slice(0, 4) + "\u2026" + account.slice(-4) : short(account)) : narrow ? "Connect" : "Connect wallet";
   btn.title = account ? (walletKind === "test" ? "Test session " : "") + account : "";
   btn.setAttribute("aria-label", account ? "Wallet " + account + ", open wallet menu" : "Connect wallet");
 }
@@ -681,6 +804,19 @@ async function openWallet() {
   if (account) { const b = await balanceOf(account); bal.textContent = b === null ? "unknown" : genStr(b, 2); }
 }
 $("walletBtn").addEventListener("click", openWallet);
+function drawTheme() {
+  const light = document.documentElement.dataset.theme === "light";
+  put($("themeBtn"), icon(light ? "moon" : "sun2", 18));
+  $("themeBtn").setAttribute("aria-label", light ? "Switch to dark theme" : "Switch to light theme");
+  $("themeColor").setAttribute("content", light ? "#F2F4F3" : "#0B1418");
+}
+$("themeBtn").addEventListener("click", () => {
+  const light = document.documentElement.dataset.theme !== "light";
+  if (light) document.documentElement.dataset.theme = "light"; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem("paramcover.theme", light ? "light" : "dark"); } catch (e) {}
+  drawTheme();
+});
+drawTheme();
 
 /* ---------- contract calls and transaction progress ---------- */
 function unwrap(receipt) {
@@ -1016,48 +1152,104 @@ function composer(onChange) {
 /* =====================================================================
    HOME
    ===================================================================== */
+const EVENT_TEXT = {
+  bought: (p) => [`${p.label}: ${perilTitle(p.peril).toLowerCase()} cover bought`, `${genStr(p.coverage, 2)} GEN reserved, trigger ${(p.cmp === "LTE" ? "\u2264 " : "\u2265 ") + tenths(p.threshold_t) + unitLabel(p.unit)}`],
+  PAID: (p) => [`${p.label}: paid out ${genStr(p.payout, 2)} GEN`, `Measured ${tenths(p.observed_t)}${unitLabel(p.unit)}, the trigger was met`],
+  EXPIRED: (p) => [`${p.label}: expired, no payout`, `Measured ${tenths(p.observed_t)}${unitLabel(p.unit)}; the pool kept ${genStr(p.premium, 2)} GEN`],
+  VOID: (p) => [`${p.label}: voided and refunded`, `Data could not be confirmed; ${genStr(p.premium, 2)} GEN returned`],
+  CANCELLED: (p) => [`${p.label}: cancelled by the holder`, "Cancelled before cover started"],
+};
+const EVENT_ICON = { bought: ["shield", "bought"], PAID: ["coin", "paid"], EXPIRED: ["check", ""], VOID: ["back", "void"], CANCELLED: ["x", ""] };
+function activityFrom(items) {
+  const ev = [];
+  for (const p of items) {
+    ev.push({ kind: "bought", at: Number(p.created_epoch || 0), p });
+    if (p.status !== "ACTIVE") ev.push({ kind: p.status, at: Number(p.resolved_epoch || p.created_epoch || 0), p });
+  }
+  return ev.sort((x, y) => y.at - x.at).slice(0, 6);
+}
 async function viewHome(root) {
   if (gate(root)) return;
   initBuyDefaults();
-  const go = h("a", { class: "btn btn-primary", href: "#/buy" }, "Price this cover");
+  const live = h("span", { class: "live" }, h("i", { "aria-hidden": "true" }), h("span", { text: "Reading the contract\u2026" }));
+  const stats = h("dl", { class: "herostats", "aria-busy": "true" }, Array.from({ length: 4 }, () => h("div", {}, h("div", { class: "skel", style: "height:44px" }))));
+  const feedList = h("ol", { "aria-live": "polite" }, Array.from({ length: 4 }, () => h("li", {}, h("div", { class: "skel", style: "height:44px;margin:6px 0" }))));
+  const feedFoot = h("div", { class: "feed-foot" }, h("div", { class: "skel", style: "height:36px;grid-column:1/-1" }));
+  const go = h("a", { class: "btn btn-primary", href: "#/buy" }, "Price this cover", icon("arrow", 18));
   const onChange = (_, probs) => go.setAttribute("aria-disabled", termsProblem(probs) ? "true" : "false");
   const comp = composer(onChange);
   onChange(false, comp._validate());
-  const kpiBox = h("dl", { class: "kpis", "aria-busy": "true" }, Array.from({ length: 4 }, () => h("div", { class: "kpi" }, h("div", { class: "skel", style: "height:46px" }))));
   const listBox = h("div", {}, skel(64, 3));
+  const role = (cls, kind, k, t, d, href) => h("a", { class: "role " + cls, href }, illustration(kind),
+    h("span", {}, h("span", { class: "k", text: k }), h("span", { class: "t", text: t }), h("span", { class: "d", text: d })),
+    h("span", { class: "go", "aria-hidden": "true" }, icon("arrow")));
   put(root,
-    h("section", { class: "panel", "aria-labelledby": "heroTitle" },
-      h("h1", { id: "heroTitle", style: "font-size:var(--t-md);font-weight:600;color:var(--ink-2);margin-bottom:12px;letter-spacing:0", text: "Weather and earthquake cover that pays without a claim." }),
-      comp,
-      h("div", { class: "actions", style: "margin-top:20px;max-width:460px" }, go, h("a", { class: "btn btn-secondary", href: "#/lab", text: isSandbox() ? "Try the test lab" : "How to test it" }))),
-    h("section", { style: "margin-top:32px", "aria-labelledby": "poolTitle" },
-      h("div", { class: "sechead" }, h("h2", { id: "poolTitle", text: "The pool backing every policy" }), h("a", { href: "#/pool", class: "btn btn-quiet sm", text: "Pool details" })),
-      kpiBox),
-    h("section", { style: "margin-top:32px", "aria-labelledby": "howTitle" },
-      h("h2", { id: "howTitle", style: "margin-bottom:12px", text: "What happens after you buy" }),
+    h("section", { class: "hero", "aria-labelledby": "heroTitle" },
+      h("div", { class: "hero-grid" },
+        h("div", {},
+          live,
+          h("h1", { class: "display", id: "heroTitle", text: "Cover that pays itself when the weather turns." }),
+          h("p", { class: "lede", text: "Write the trigger in one sentence. Validators price it from ten years of real records, the pool locks the payout, and if it happens you are paid. No claim, no adjuster." }),
+          h("div", { class: "actions" }, h("a", { class: "btn btn-primary", href: "#/buy" }, "Get covered", icon("arrow", 18)), h("a", { class: "btn btn-secondary", href: "#/pool", text: "Earn from premiums" })),
+          stats),
+        h("section", { class: "feed", "aria-labelledby": "feedTitle" },
+          h("div", { class: "feed-head" }, h("h2", { id: "feedTitle", text: "Live contract activity" }), h("span", { class: "src", text: "On-chain" })),
+          feedList, feedFoot))),
+    h("section", { class: "section", "aria-labelledby": "rolesTitle" },
+      h("h2", { id: "rolesTitle", text: "Start where you are" }),
+      h("div", { class: "roles" },
+        role("", "cover", "I need", "Cover", "Protect a harvest, an event or a trip against heat, rain, frost, wind or a quake.", "#/buy"),
+        role("earn", "earn", "I want to", "Earn", "Back the pool with GEN and collect premiums, with hard caps on every risk.", "#/pool"),
+        role("look", "look", "I am just", "Exploring", isSandbox() ? "Run three guided scenarios and watch a policy pay, expire and refund." : "See every policy, its trigger and how it settled.", isSandbox() ? "#/lab" : "#/policies"))),
+    h("section", { class: "section", "aria-labelledby": "writeTitle" },
+      h("h2", { id: "writeTitle", text: "Write your cover in one sentence" }),
+      h("div", { class: "panel" }, comp,
+        h("div", { class: "actions", style: "margin-top:20px;max-width:460px" }, go, h("a", { class: "btn btn-secondary", href: "#/policies", text: "See existing policies" })))),
+    h("section", { class: "section", "aria-labelledby": "howTitle" },
+      h("h2", { id: "howTitle", text: "What happens after you buy" }),
       h("div", { class: "panel" }, h("ol", { class: "steps" },
         [["Priced from history", "Validators read about ten years of public records and count how often your trigger would have fired."],
          ["Collateral locked", "The pool reserves your full payout the moment you buy, so it cannot go missing."],
          ["Checked after the window", "Anyone can start the check. Validators fetch the real data and a reviewer confirms it is genuine."],
          ["Paid or released", "If the trigger happened, the payout is credited to you. If not, the pool keeps the premium."]]
           .map(([t, d], i) => h("li", {}, h("span", { class: "n", text: String(i + 1) }), h("div", {}, h("h3", { text: t }), h("p", { class: "muted small", style: "margin-top:2px", text: d }))))))),
-    h("section", { style: "margin-top:32px", "aria-labelledby": "latestTitle" },
-      h("div", { class: "sechead" }, h("h2", { id: "latestTitle", text: "Latest policies" }), h("a", { href: "#/policies", class: "btn btn-quiet sm", text: "All policies" })),
+    h("section", { class: "section", "aria-labelledby": "latestTitle" },
+      h("div", { class: "sechead" }, h("h2", { id: "latestTitle", style: "font-size:var(--t-xl)", text: "Latest policies" }), h("a", { href: "#/policies", class: "btn btn-quiet sm", text: "All policies" })),
       listBox));
-  try {
-    const [pool, stats] = await Promise.all([readJson("get_pool"), readJson("get_stats")]);
-    kpiBox.removeAttribute("aria-busy");
-    put(kpiBox,
-      h("div", { class: "kpi" }, h("dt", { text: "Capital in the pool" }), h("dd", {}, genStr(pool.capital, 2), h("small", { text: "GEN" }))),
-      h("div", { class: "kpi" }, h("dt", { text: "Reserved for payouts" }), h("dd", { text: pct(pool.utilization_bps) })),
-      h("div", { class: "kpi" }, h("dt", { text: "Active policies" }), h("dd", { text: String(stats.active) })),
-      h("div", { class: "kpi" }, h("dt", { text: "Paid out so far" }), h("dd", {}, genStr(pool.payouts_total, 2), h("small", { text: "GEN" }))));
-  } catch (e) { put(kpiBox, h("div", { class: "kpi", style: "grid-column:1/-1" }, h("p", { class: "muted small", text: "Pool figures could not be loaded. " + explain(e) }))); }
-  try {
-    const list = await readJson("list_policies", [0, 5]);
-    if (!list.items.length) put(listBox, h("div", { class: "panel empty" }, h("h3", { text: "No policies yet" }), h("p", { text: "The first policy written on this contract will appear here." }), h("a", { class: "btn btn-primary", href: "#/buy", text: "Write the first policy" })));
-    else put(listBox, policyCollection(list.items));
-  } catch (e) { put(listBox, h("p", { class: "muted small", text: "Policies could not be loaded. " + explain(e) })); }
+
+  let pool = null, statsData = null, acct = null, list = null;
+  try { [pool, statsData, acct, list] = await Promise.all([readJson("get_pool"), readJson("get_stats"), readJson("get_accounting"), readJson("list_policies", [0, 20])]); }
+  catch (e) {
+    put(live, h("span", { text: "The contract could not be read right now." }));
+    put(stats, h("div", { style: "grid-column:1/-1" }, h("p", { class: "muted small", text: explain(e) }), h("button", { class: "btn btn-secondary sm", type: "button", style: "margin-top:8px", text: "Try again", onclick: () => viewHome(root) })));
+    put(feedList, h("li", {}, h("p", { class: "muted small", style: "padding:12px 0", text: "Activity is unavailable until the contract can be read." })));
+    clear(feedFoot); put(listBox, h("p", { class: "muted small", text: explain(e) }));
+    return;
+  }
+  put(live, h("i", { "aria-hidden": "true" }), h("span", {}, h("b", { text: String(statsData.active) }), statsData.active === 1 ? " policy covered right now" : " policies covered right now"));
+  stats.removeAttribute("aria-busy");
+  put(stats,
+    h("div", {}, h("dt", { text: "Pool capital" }), h("dd", {}, genStr(pool.capital, 2), h("small", { text: "GEN" })), h("span", { class: "sub", text: genStr(pool.free_capital, 2) + " GEN free" })),
+    h("div", {}, h("dt", { text: "Reserved" }), h("dd", { text: pct(pool.utilization_bps) }), h("span", { class: "sub", text: "limit " + pct(pool.max_utilization_bps) })),
+    h("div", {}, h("dt", { text: "Policies" }), h("dd", { text: String(statsData.policies) }), h("span", { class: "sub", text: `${statsData.paid} paid, ${statsData.expired} expired` })),
+    h("div", {}, h("dt", { text: "Paid out" }), h("dd", {}, genStr(pool.payouts_total, 2), h("small", { text: "GEN" })), h("span", { class: "sub", text: "to policyholders" })));
+  const events = activityFrom(list.items);
+  if (!events.length) put(feedList, h("li", {}, h("div", { class: "empty", style: "padding:24px 8px" }, h("h3", { text: "No activity yet" }), h("p", { class: "small", text: "The first policy bought on this contract appears here." }))));
+  else put(feedList, events.map((ev) => {
+    const [title, sub] = EVENT_TEXT[ev.kind](ev.p);
+    const [ic, tone] = EVENT_ICON[ev.kind];
+    return h("li", {}, h("a", { href: "#/policy/" + ev.p.id },
+      h("span", { class: "ev-i " + tone, "aria-hidden": "true" }, icon(ic, 16)),
+      h("span", { style: "min-width:0" }, h("span", { class: "ev-t", text: title }), h("span", { class: "ev-s", text: `${ev.p.id}, ${sub}` })),
+      h("span", { class: "ev-a", text: timeAgo(ev.at) })));
+  }));
+  const balanced = !!acct.balance_covers_liabilities && !!acct.reserved_within_capital;
+  put(feedFoot,
+    h("div", {}, h("b", { class: "num", text: genStr(acct.reserved, 2) + " GEN" }), h("span", { text: "locked for payouts" })),
+    h("div", {}, h("b", { class: "num", text: genStr(acct.owed_total, 2) + " GEN" }), h("span", { text: "claimable by users" })),
+    h("div", { class: "bal" + (balanced ? "" : " off") }, h("b", {}, icon(balanced ? "check" : "x", 18), balanced ? "Balanced" : "Check"), h("span", { text: balanced ? "Contract balance equals pool capital plus claims" : "Liabilities exceed the contract balance" })));
+  if (!list.items.length) put(listBox, h("div", { class: "panel empty" }, h("h3", { text: "No policies yet" }), h("p", { text: "The first policy written on this contract will appear here." }), h("a", { class: "btn btn-primary", href: "#/buy", text: "Write the first policy" })));
+  else put(listBox, policyCollection(list.items.slice(0, 5)));
 }
 
 /* =====================================================================

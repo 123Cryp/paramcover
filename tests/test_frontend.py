@@ -27,7 +27,10 @@ class TestFrontend(unittest.TestCase):
     def test_single_file_with_esm_sh_latest(self):
         self.assertIn('from "https://esm.sh/genlayer-js@latest"', HTML)
         self.assertIn('from "https://esm.sh/genlayer-js@latest/chains"', HTML)
-        self.assertEqual(len(re.findall(r"<script\b", HTML)), 1)
+        self.assertEqual(len(re.findall(r'<script type="module">', HTML)), 1)
+        for inline in re.findall(r"<script>(.*?)</script>", HTML, re.S):
+            self.assertLess(len(inline), 300)
+            self.assertIn("paramcover.theme", inline)
         for link in re.findall(r"<link\b[^>]*>", HTML):
             self.assertRegex(link, r'href="https://fonts\.(googleapis|gstatic)\.com')
 

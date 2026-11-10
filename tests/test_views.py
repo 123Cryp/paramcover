@@ -112,3 +112,14 @@ class TestViews(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSummaryFields(unittest.TestCase):
+    def test_list_items_carry_timestamps_for_the_activity_feed(self):
+        c = make_contract()
+        add_liquidity(c, 100)
+        pid = new_policy(c, 10)
+        item = json.loads(c.list_policies(0, 5))["items"][0]
+        full = policy(c, pid)
+        for key in ("cmp", "radius_km", "created_epoch", "resolved_epoch"):
+            self.assertEqual(item[key], full[key])

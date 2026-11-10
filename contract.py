@@ -1005,6 +1005,8 @@ class ParamCover(gl.Contract):
             "start_date": policy["start_date"], "end_date": policy["end_date"], "threshold_t": policy["threshold_t"],
             "unit": policy["unit"], "coverage": policy["coverage"], "premium": policy["premium"],
             "status": policy["status"], "observed_t": policy["observed_t"], "payout": policy["payout"],
+            "cmp": policy["cmp"], "radius_km": policy["radius_km"], "created_epoch": policy["created_epoch"],
+            "resolved_epoch": policy["resolved_epoch"],
         }
 
     @gl.public.view
