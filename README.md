@@ -15,6 +15,15 @@ There are no claims, no adjusters and no discretion: the rule is fixed at purcha
 | `tools/make_sandbox.py` | Builds and checks `contract_sandbox.py` |
 | `ARCHITECTURE.md`, `TESTING.md` | Design notes and the Studio walkthrough |
 
+## Live deployment
+
+| | |
+| --- | --- |
+| Contract (sandbox build) | `0xb4fCBDB1217a59643f30243c03BbbaBd1577A4EA` |
+| Explorer | https://explorer-studio.genlayer.com/address/0xb4fCBDB1217a59643f30243c03BbbaBd1577A4EA |
+| Frontend | https://123cryp.github.io/paramcover/ |
+| Network | GenLayer Studio |
+
 ## Policy types
 
 | Peril | Pays out when | Window | Data source |
@@ -67,7 +76,7 @@ python3 tools/make_sandbox.py --check
 2. Open `index.html` with `?contract=0xYourAddress`, or paste the address in the wallet menu.
 3. Follow the **Lab** tab, or the table in `TESTING.md`.
 
-For a production deployment use `contract.py` and set `DEFAULT_CONTRACT_ADDRESS` in `index.html`.
+The frontend is wired to the deployment above through `DEFAULT_CONTRACT_ADDRESS` in `index.html`; `?contract=0x...` overrides it. For a production deployment use `contract.py`.
 
 ## Limits and honesty
 
