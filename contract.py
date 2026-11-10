@@ -278,8 +278,14 @@ def _review_prompt(ctx, parsed):
         f"Data source host: {ctx['host']}.\n"
         "Evidence extracted by deterministic code from the source response:\n"
         f"{parsed['table']}\n"
-        "Answer valid=true only if every day of the window is present exactly once, the numbers are plausible for the "
-        "unit and the place, and nothing suggests an error page, a unit mix-up or a different location. "
+        + (
+            "Answer valid=true if the evidence reads like a normal earthquake catalog result for the radius and window "
+            "(a single largest event, or no events at all, are both normal) and nothing suggests an error page or a unit "
+            "mix-up. "
+            if peril["src"] == "quake" else
+            "Answer valid=true only if every day of the window is present exactly once, the numbers are plausible for the "
+            "unit and the place, and nothing suggests an error page, a unit mix-up or a different location. "
+        ) +
         'Reply with JSON only: {"valid": true or false, "reason": "one short sentence"}'
     )
 

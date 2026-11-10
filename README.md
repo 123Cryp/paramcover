@@ -11,7 +11,7 @@ There are no claims, no adjusters and no discretion: the rule is fixed at purcha
 | `contract.py` | Production Intelligent Contract (`ParamCover`) |
 | `contract_sandbox.py` | Same contract with seven constants changed so a full lifecycle runs in minutes on Studio (generated, never edited by hand) |
 | `index.html` | Single-file frontend: write a policy as a sentence, pool dashboard, policy pages, guided test lab |
-| `tests/` | Offline test suite with a GenLayer SDK stub (176 tests) |
+| `tests/` | Offline test suite with a GenLayer SDK stub (180 tests) |
 | `tools/make_sandbox.py` | Builds and checks `contract_sandbox.py` |
 | `ARCHITECTURE.md`, `TESTING.md` | Design notes and the Studio walkthrough |
 
@@ -19,8 +19,8 @@ There are no claims, no adjusters and no discretion: the rule is fixed at purcha
 
 | | |
 | --- | --- |
-| Contract (sandbox build) | `0xb4fCBDB1217a59643f30243c03BbbaBd1577A4EA` |
-| Explorer | https://explorer-studio.genlayer.com/address/0xb4fCBDB1217a59643f30243c03BbbaBd1577A4EA |
+| Contract (sandbox build) | `0xB5999Fa46b207aC32F2B6Ef9614D1a638dAFFd93` |
+| Explorer | https://explorer-studio.genlayer.com/address/0xB5999Fa46b207aC32F2B6Ef9614D1a638dAFFd93 |
 | Frontend | https://123cryp.github.io/paramcover/ |
 | Network | GenLayer Studio |
 
@@ -81,7 +81,7 @@ The frontend is wired to the deployment above through `DEFAULT_CONTRACT_ADDRESS`
 ## Limits and honesty
 
 - Prices are indicative, derived from public history, not an actuarial model.
-- Open-Meteo and USGS response shapes were implemented from their documented formats and mocked in tests. They have not been exercised against the live services from the build environment, so the first live Studio run is the real integration test.
+- Open-Meteo and USGS were exercised live on GenLayer Studio (quote, buy and resolve for rain, heat, frost and earthquake). Prices stay indicative, and the build environment itself could not reach those services, so offline tests use mocked responses.
 - A buyer may know a forecast that the historical price does not; the lead time and risk cap limit but do not remove this.
 - This is a demonstration contract, not regulated insurance.
 
