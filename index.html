@@ -45,7 +45,7 @@
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:var(--t-md);line-height:1.5;
-  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
   padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
 h1,h2,h3{margin:0;line-height:1.2;letter-spacing:-.015em}
 h1{font-size:var(--t-2xl);font-weight:700}
@@ -112,7 +112,8 @@ footer.foot p+p{margin-top:4px}
 .muted{color:var(--ink-2)}
 .small{font-size:var(--t-sm)}
 .xs{font-size:var(--t-xs);color:var(--ink-3)}
-.num{font-variant-numeric:tabular-nums}
+.num,.kpi dd,.herostats dd,.dl dd,.price,.feed-foot b{font-variant-numeric:tabular-nums}
+.num{font-feature-settings:"tnum" 1}
 .addr{font-variant-numeric:tabular-nums;word-break:break-all;letter-spacing:.01em}
 .measure{max-width:62ch}
 .pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s4);flex-wrap:wrap;margin-bottom:var(--s5)}
@@ -227,9 +228,9 @@ table.ptable{width:100%;border-collapse:separate;border-spacing:0;background:var
 @media (min-width:900px){table.only-wide{display:table}.only-narrow{display:none}}
 
 /* ---------- the composer: a policy written as a sentence ---------- */
-.composer{font-size:var(--t-2xl);font-weight:500;line-height:1.8;letter-spacing:-.015em;color:var(--ink);margin:0;overflow-wrap:anywhere}
+.composer{font-size:var(--t-2xl);font-weight:500;line-height:1.72;letter-spacing:-.015em;color:var(--ink);margin:0;overflow-wrap:anywhere}
 .composer .tok{font:inherit;font-weight:700;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--rule-strong);
-  border-radius:0;padding:0 2px;margin:0 1px;min-height:1.3em;cursor:pointer;appearance:none;-webkit-appearance:none;vertical-align:baseline;max-width:100%}
+  border-radius:0;padding:0 3px 1px;margin:0 1px;height:auto;min-height:0;line-height:1.18;cursor:pointer;appearance:none;-webkit-appearance:none;vertical-align:baseline;max-width:100%}
 .composer .tok:hover{border-bottom-color:var(--ink-3)}
 .composer .tok:focus{outline:none;border-bottom-color:var(--tide);background:var(--tide-soft)}
 .composer .tok:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
@@ -240,7 +241,12 @@ table.ptable{width:100%;border-collapse:separate;border-spacing:0;background:var
 .composer input.tok.n{width:4.4ch;min-width:2.6ch;text-align:center}
 .composer input.tok.n.w5{width:5.4ch}
 @supports (field-sizing:content){.composer input.tok.n,.composer input.tok.n.w5{width:auto;padding:0 6px}}
-.composer input.tok.d{width:8.2em;font-size:.72em;font-weight:700;padding-bottom:2px}
+.composer select.tok,.composer input.tok,.composer .datetok{padding-top:9px;margin-top:-9px}
+.composer .datetok{position:relative;display:inline-block;white-space:nowrap}
+.composer .datetok:focus-within{border-bottom-color:var(--tide);background:var(--tide-soft)}
+.composer .datetok:focus-within:has(:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
+.composer .dateinp{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;border:0;cursor:pointer;font:inherit;color-scheme:inherit}
+.composer .dateinp::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .composer .trig{color:var(--trigger)}
 .composer .tok.trig{color:var(--trigger);border-bottom-color:var(--trigger-mark)}
 .issues{margin-top:var(--s3);font-size:var(--t-sm);color:var(--bad);font-weight:600}
@@ -1059,6 +1065,23 @@ function coverageProblem() {
 }
 const termsProblem = (p) => p.place || p.window || p.thr;
 
+function fmtShortDay(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || "")) return "pick a date";
+  const d = new Date(iso + "T00:00:00Z");
+  const opts = { day: "numeric", month: "short", timeZone: "UTC" };
+  if (d.getUTCFullYear() !== new Date().getUTCFullYear()) opts.year = "numeric";
+  return d.toLocaleDateString("en-GB", opts);
+}
+function dateTok(value, label, onChange) {
+  const text = h("span", { "aria-hidden": "true", text: fmtShortDay(value) });
+  const inp = h("input", { class: "dateinp", type: "date", value, "aria-label": label, "aria-describedby": "composerIssues" });
+  const wrap = h("span", { class: "tok datetok" }, text, inp);
+  inp.addEventListener("click", () => { try { inp.showPicker(); } catch (e) {} });
+  inp.addEventListener("change", () => { text.textContent = fmtShortDay(inp.value); onChange(inp.value); });
+  wrap._set = (v) => { inp.value = v; text.textContent = fmtShortDay(v); };
+  wrap._invalid = (bad) => { wrap.setAttribute("aria-invalid", bad ? "true" : "false"); inp.setAttribute("aria-invalid", bad ? "true" : "false"); };
+  return wrap;
+}
 function composer(onChange) {
   const spec = perilSpec(bs.peril);
   const ui = PERIL_UI[bs.peril];
@@ -1070,8 +1093,8 @@ function composer(onChange) {
   const place = h("select", { class: "tok", "aria-label": "Place" },
     CITIES.map((c, i) => h("option", { value: String(i), selected: bs.city === i, text: c[0] })),
     h("option", { value: "-1", selected: bs.city === -1, text: bs.city === -1 ? bs.label || "your place" : "another place…" }));
-  const from = tok({ class: "tok d", type: "date", value: bs.start, "aria-label": "First day of cover, UTC" });
-  const to = tok({ class: "tok d", type: "date", value: bs.end, "aria-label": "Last day of cover, UTC" });
+  const from = dateTok(bs.start, "First day of cover, UTC", (v) => { bs.start = v; fire(true); });
+  const to = dateTok(bs.end, "Last day of cover, UTC", (v) => { bs.end = v; fire(true); });
   const thr = tok({ class: "tok n trig", inputmode: "decimal", value: bs.thr, "aria-label": `Trigger level${spec.unit === "M" ? ", magnitude" : " in " + spec.unit}` });
   const radius = tok({ class: "tok n w5", inputmode: "numeric", value: String(bs.radius), "aria-label": "Radius in kilometres" });
 
@@ -1085,8 +1108,8 @@ function composer(onChange) {
     const probs = { place: placeProblem(), window: windowProblem(), thr: thresholdProblem(), coverage: coverageProblem() };
     cov.setAttribute("aria-invalid", probs.coverage ? "true" : "false");
     thr.setAttribute("aria-invalid", probs.thr ? "true" : "false");
-    from.setAttribute("aria-invalid", probs.window ? "true" : "false");
-    to.setAttribute("aria-invalid", probs.window ? "true" : "false");
+    from._invalid(!!probs.window);
+    to._invalid(!!probs.window);
     place.setAttribute("aria-invalid", probs.place ? "true" : "false");
     issues.textContent = probs.place || probs.window || probs.thr || probs.coverage;
     return probs;
@@ -1095,8 +1118,6 @@ function composer(onChange) {
 
   cov.addEventListener("input", () => { bs.coverage = cov.value.trim(); fire(false); });
   thr.addEventListener("input", () => { bs.thr = thr.value.trim(); slider.value = String(Number(bs.thr) || 0); fire(true); });
-  from.addEventListener("change", () => { bs.start = from.value; fire(true); });
-  to.addEventListener("change", () => { bs.end = to.value; fire(true); });
   radius.addEventListener("input", () => { bs.radius = Number(radius.value) || 0; fire(true); });
   peril.addEventListener("change", () => {
     bs.peril = peril.value; bs.thr = String(PERIL_UI[bs.peril].def); bs.quote = null; fitWindow();
@@ -1136,7 +1157,7 @@ function composer(onChange) {
       h("div", {}, h("span", { class: "label", text: "Quick dates" }),
         h("div", { class: "seg" }, presets.map(([text, off, len]) => h("button", { class: "chip", type: "button", text, onclick: () => {
           bs.start = addDays(todayIso(), off); bs.end = addDays(bs.start, Math.min(Math.max(len, spec.min_days), spec.max_days) - 1);
-          from.value = bs.start; to.value = bs.end; fire(true);
+          from._set(bs.start); to._set(bs.end); fire(true);
         } }))),
         h("p", { class: "help", text: state.cfg.allow_backdated ? "Sandbox contract: past dates are allowed, so recorded weather settles the policy straight away." : `Cover starts at least ${state.cfg.min_lead_seconds / 86400} days after purchase. All dates are UTC.` })),
       h("div", { class: "field" }, h("label", { for: "thrRange", text: `Trigger level, from ${tenths(spec.threshold_min_t)} to ${tenths(spec.threshold_max_t)}${unitLabel(spec.unit)}` }), slider),
