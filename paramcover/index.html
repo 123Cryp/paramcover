@@ -1,0 +1,1853 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0B1418" id="themeColor">
+<script>try{if(localStorage.getItem("paramcover.theme")==="light"){document.documentElement.dataset.theme="light";document.getElementById("themeColor").content="#F2F4F3";}}catch(e){}</script>
+<meta name="description" content="ParamCover: parametric weather and earthquake cover on GenLayer. Write the trigger, pay the premium, get paid automatically if it happens.">
+<title>ParamCover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#0B1418; --surface:#121E25; --raised:#16242C; --sunken:#1A2A33; --ink:#EAF1F3; --ink-2:#AFC0C8; --ink-3:#8C9EA8;
+  --rule:#22333C; --rule-strong:#30454F;
+  --tide:#62B8C9; --tide-hover:#84CBD8; --tide-soft:#14323B; --on-tide:#06232A;
+  --trigger:#F4B547; --trigger-soft:#352A12; --trigger-mark:#F4B547;
+  --ok:#5FCB8C; --ok-soft:#133024; --bad:#F28B7F; --bad-soft:#3A1B18; --muted-soft:#1C2B33;
+  --focus:#84CBD8;
+  --glow-warm:rgba(244,181,71,.20); --glow-cool:rgba(98,184,201,.16);
+  --role-cover:#F4B547; --role-earn:#62B8C9; --role-look:#5FCB8C;
+  --font:"Schibsted Grotesk",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --t-xs:12.5px; --t-sm:14px; --t-md:16px; --t-lg:19px; --t-xl:24px; --t-2xl:clamp(23px,5.2vw,34px); --t-display:clamp(36px,7.4vw,60px);
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:20px;
+  --shadow-1:0 1px 0 rgba(0,0,0,.25); --shadow-pop:0 16px 48px rgba(0,0,0,.55);
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --nav-h:64px; --side-w:236px;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --paper:#F2F4F3; --surface:#FFFFFF; --raised:#FFFFFF; --sunken:#E9EDEC; --ink:#15232C; --ink-2:#4A5A65; --ink-3:#66757F;
+  --rule:#D6DDE1; --rule-strong:#B9C4CA;
+  --tide:#0E5A6B; --tide-hover:#0A4856; --tide-soft:#E1EEF0; --on-tide:#FFFFFF;
+  --trigger:#9A5D00; --trigger-soft:#FBEFD9; --trigger-mark:#D98E04;
+  --ok:#1D6F45; --ok-soft:#E0F0E6; --bad:#A8261B; --bad-soft:#F8E3E0; --muted-soft:#E8ECEE;
+  --focus:#0E5A6B;
+  --glow-warm:rgba(217,142,4,.14); --glow-cool:rgba(14,90,107,.10);
+  --role-cover:#B86F00; --role-earn:#0E5A6B; --role-look:#1D6F45;
+  --shadow-1:0 1px 0 rgba(21,35,44,.04); --shadow-pop:0 12px 40px rgba(21,35,44,.18);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:var(--t-md);line-height:1.5;
+  -webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
+  padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+h1,h2,h3{margin:0;line-height:1.2;letter-spacing:-.015em}
+h1{font-size:var(--t-2xl);font-weight:700}
+h2{font-size:var(--t-lg);font-weight:700}
+h3{font-size:var(--t-md);font-weight:650}
+p{margin:0}
+a{color:var(--tide);text-underline-offset:3px}
+a:hover{color:var(--tide-hover)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:8px;top:-60px;z-index:100;background:var(--ink);color:var(--paper);padding:10px 14px;border-radius:var(--r-sm)}
+.skip:focus{top:8px}
+svg.ic{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- app frame ---------- */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:var(--s3);height:56px;padding:0 var(--s4);
+  background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:800;font-size:18px;letter-spacing:-.02em;min-height:44px}
+.brand:hover{color:var(--ink)}
+.mark{width:28px;height:28px;flex:none;display:block}
+.env{font-size:var(--t-xs);font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--rule-strong);color:var(--ink-2);white-space:nowrap}
+.env.sandbox{border-color:var(--trigger);color:var(--trigger)}
+.grow{flex:1}
+.brand{flex:none}
+@media (max-width:479px){.topbar .env{display:none}}
+.walletbtn{display:inline-flex;align-items:center;gap:8px;min-height:40px;min-width:0;flex:0 1 auto;max-width:56vw;padding:0 12px;border:1px solid var(--rule-strong);
+  background:var(--surface);color:var(--ink);border-radius:var(--r-sm);font:inherit;font-size:var(--t-sm);font-weight:600;cursor:pointer}
+.walletbtn:hover{border-color:var(--ink-3)}
+.walletbtn .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.walletbtn .dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex:none}
+.walletbtn.on .dot{background:var(--ok)}
+.walletbtn.warn .dot{background:var(--trigger-mark)}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs ul{list-style:none;margin:0;padding:4px 6px;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;height:var(--nav-h)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:100%;border-radius:var(--r-md);
+  color:var(--ink-3);text-decoration:none;font-size:11.5px;font-weight:600}
+nav.tabs a:hover{color:var(--ink)}
+nav.tabs a[aria-current="page"]{color:var(--tide);background:var(--tide-soft)}
+nav.tabs .side-brand{display:none;padding:0 12px}
+main{padding:var(--s5) var(--s4) var(--s7);max-width:1120px;margin:0 auto;min-height:70vh}
+main:focus{outline:none}
+footer.foot{max-width:1120px;margin:0 auto;padding:0 var(--s4) var(--s6);font-size:var(--t-xs);color:var(--ink-3)}
+footer.foot p+p{margin-top:4px}
+@media (min-width:1024px){
+  body{padding-bottom:0;padding-left:var(--side-w)}
+  .topbar{padding:0 var(--s6)}
+  .topbar .brand{display:none}
+  .walletbtn{max-width:320px}
+  nav.tabs{top:0;right:auto;width:var(--side-w);bottom:0;border-top:0;border-right:1px solid var(--rule);background:var(--paper);padding:var(--s3)}
+  nav.tabs .side-brand{display:flex}
+  nav.tabs ul{display:flex;flex-direction:column;height:auto;padding:var(--s4) 0;gap:2px}
+  nav.tabs a{flex-direction:row;justify-content:flex-start;gap:12px;height:44px;padding:0 12px;font-size:var(--t-sm)}
+  main{padding:var(--s6) var(--s6) var(--s7)}
+  footer.foot{padding:0 var(--s6) var(--s6)}
+}
+
+/* ---------- primitives ---------- */
+.stack>*+*{margin-top:var(--s4)}
+.stack-lg>*+*{margin-top:var(--s5)}
+.row{display:flex;align-items:center;gap:var(--s3)}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+.muted{color:var(--ink-2)}
+.small{font-size:var(--t-sm)}
+.xs{font-size:var(--t-xs);color:var(--ink-3)}
+.num,.kpi dd,.herostats dd,.dl dd,.price,.feed-foot b{font-variant-numeric:tabular-nums}
+.num{font-feature-settings:"tnum" 1}
+.addr{font-variant-numeric:tabular-nums;word-break:break-all;letter-spacing:.01em}
+.measure{max-width:62ch}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s4);flex-wrap:wrap;margin-bottom:var(--s5)}
+.pagehead p{margin-top:6px;color:var(--ink-2);max-width:60ch}
+.sechead{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s3)}
+.sechead .btn{flex:none}
+
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);padding:var(--s5);box-shadow:var(--shadow-1);min-width:0}
+@media (max-width:420px){.panel{padding:var(--s4)}}
+.panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s4)}
+.inset{background:var(--sunken);border-radius:var(--r-md);padding:var(--s4)}
+.callout{border-left:3px solid var(--tide);background:var(--tide-soft);padding:var(--s3) var(--s4);border-radius:0 var(--r-md) var(--r-md) 0}
+.callout.warn{border-color:var(--trigger-mark);background:var(--trigger-soft)}
+.callout.bad{border-color:var(--bad);background:var(--bad-soft)}
+.callout.ok{border-color:var(--ok);background:var(--ok-soft)}
+.cols{display:grid;gap:var(--s5);grid-template-columns:minmax(0,1fr)}
+@media (max-width:899px){.cols.act-first>.sticky{order:-1}}
+@media (min-width:900px){.cols{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:start}.cols .sticky{position:sticky;top:76px}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--r-sm);
+  font:inherit;font-weight:650;font-size:var(--t-md);border:1px solid transparent;cursor:pointer;text-decoration:none;text-align:center;line-height:1.25;
+  transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease)}
+.btn-primary{background:var(--tide);color:var(--on-tide)}
+.btn-primary:hover{background:var(--tide-hover);color:var(--on-tide)}
+.btn-secondary{background:var(--surface);color:var(--ink);border-color:var(--rule-strong)}
+.btn-secondary:hover{border-color:var(--ink-3);color:var(--ink)}
+.btn-quiet{background:transparent;color:var(--tide);padding:0 10px}
+.btn-quiet:hover{background:var(--tide-soft)}
+.btn-danger{background:var(--surface);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--rule))}
+.btn-danger:hover{background:var(--bad-soft)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed;transform:none}
+.btn.block{width:100%}
+.btn.sm{min-height:40px;padding:0 12px;font-size:var(--t-sm)}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+.actions{display:flex;gap:var(--s3);flex-wrap:wrap}
+.actions>.btn{flex:1 1 200px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.field{display:block}
+.field+.field{margin-top:var(--s4)}
+.field>label,.label{display:block;font-size:var(--t-sm);font-weight:600;margin-bottom:6px;color:var(--ink)}
+.req{color:var(--bad);margin-left:2px}
+.input{width:100%;min-height:44px;padding:10px 12px;font:inherit;color:var(--ink);background:var(--surface);
+  border:1px solid var(--rule-strong);border-radius:var(--r-sm);appearance:none;-webkit-appearance:none}
+.input:hover{border-color:var(--ink-3)}
+.input:focus{outline:none;border-color:var(--tide);box-shadow:0 0 0 3px color-mix(in srgb,var(--tide) 22%,transparent)}
+.input[aria-invalid="true"]{border-color:var(--bad)}
+.help{font-size:var(--t-xs);color:var(--ink-3);margin-top:6px}
+.err{font-size:var(--t-xs);color:var(--bad);margin-top:6px;font-weight:600}
+.err:empty{display:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.grid2 .field+.field{margin-top:0}
+input[type=range]{width:100%;accent-color:var(--tide);min-height:36px}
+.seg{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--rule-strong);background:var(--surface);color:var(--ink-2);
+  font:inherit;font-size:var(--t-sm);font-weight:600;cursor:pointer}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chip[disabled]{opacity:.5;cursor:not-allowed}
+
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:var(--t-xs);font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge.ACTIVE{background:var(--tide-soft);color:var(--tide)}
+.badge.PAID{background:var(--ok-soft);color:var(--ok)}
+.badge.EXPIRED,.badge.CANCELLED{background:var(--muted-soft);color:var(--ink-2)}
+.badge.VOID{background:var(--trigger-soft);color:var(--trigger)}
+
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r-lg);overflow:hidden;margin:0}
+.kpi{background:var(--surface);padding:var(--s4);min-width:0}
+.kpi dt{font-size:var(--t-xs);color:var(--ink-3);font-weight:600}
+.kpi dd{margin:4px 0 0;font-size:clamp(19px,4.6vw,24px);font-weight:700;letter-spacing:-.02em;overflow-wrap:anywhere}
+.kpi dd small{font-size:var(--t-sm);font-weight:600;color:var(--ink-2);margin-left:4px}
+@media (min-width:720px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px var(--s4);margin:0;font-size:var(--t-sm)}
+.dl dt{color:var(--ink-3)}
+.dl dd{margin:0;text-align:right;font-weight:600;min-width:0;overflow-wrap:anywhere}
+
+.meter{height:8px;background:var(--sunken);border-radius:999px;position:relative}
+.meter>i{display:block;height:100%;background:var(--tide);border-radius:999px;transition:width .4s var(--ease)}
+.meter.hot>i{background:var(--trigger-mark)}
+.meter .limit{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);border-radius:1px}
+
+.skel{border-radius:var(--r-md);background:var(--sunken);position:relative;overflow:hidden;min-height:18px}
+.skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--surface) 60%,transparent),transparent);animation:shimmer 1.3s infinite}
+@keyframes shimmer{to{transform:translateX(100%)}}
+.empty{padding:var(--s6) var(--s4);text-align:center;color:var(--ink-2)}
+.empty h3{color:var(--ink);margin-bottom:6px}
+.empty .btn{margin-top:var(--s4)}
+
+/* ---------- policy lists ---------- */
+.plist{list-style:none;margin:0;padding:0;border:1px solid var(--rule);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
+.plist li+li{border-top:1px solid var(--rule)}
+.prow{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:var(--s3);align-items:center;padding:var(--s3) var(--s4);color:var(--ink);text-decoration:none;min-height:64px}
+.prow:hover{background:var(--sunken);color:var(--ink)}
+.prow .t{display:block;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .s{display:block;font-size:var(--t-xs);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .e{text-align:right;display:grid;gap:4px;justify-items:end}
+.prow .e b{font-size:var(--t-sm)}
+.glyph{width:36px;height:36px;border-radius:var(--r-md);display:grid;place-items:center;background:var(--sunken);color:var(--ink-2);flex:none}
+.glyph.lg{width:44px;height:44px}
+table.ptable{width:100%;border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);overflow:hidden;font-size:var(--t-sm)}
+.ptable th{text-align:left;font-weight:600;color:var(--ink-3);font-size:var(--t-xs);padding:10px var(--s4);border-bottom:1px solid var(--rule);background:var(--paper)}
+.ptable td{padding:12px var(--s4);border-bottom:1px solid var(--rule);vertical-align:middle}
+.ptable tr:last-child td{border-bottom:0}
+.ptable tbody tr{cursor:pointer}
+.ptable tbody tr:hover td{background:var(--sunken)}
+.ptable .r{text-align:right}
+.ptable a{color:var(--ink);font-weight:650;text-decoration:none}
+.ptable a:hover{text-decoration:underline}
+.only-wide{display:none}
+@media (min-width:900px){table.only-wide{display:table}.only-narrow{display:none}}
+
+/* ---------- the composer: a policy written as a sentence ---------- */
+.composer{font-size:clamp(18px,2.6vw,22px);font-weight:500;line-height:2.25;letter-spacing:-.01em;color:var(--ink-2);margin:0}
+.composer .tok{font:inherit;font-size:.92em;font-weight:700;line-height:1.3;color:var(--ink);background:var(--sunken);border:1px solid var(--rule-strong);
+  border-radius:8px;padding:7px 11px;margin:0 2px;height:auto;min-height:0;cursor:pointer;appearance:none;-webkit-appearance:none;vertical-align:baseline;max-width:100%;
+  field-sizing:content;transition:border-color .15s var(--ease),background-color .15s var(--ease)}
+.composer .tok:hover{border-color:var(--ink-3)}
+.composer .tok:focus{outline:none;border-color:var(--tide);box-shadow:0 0 0 3px color-mix(in srgb,var(--tide) 25%,transparent)}
+.composer .tok[aria-invalid="true"]{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.composer select.tok{padding-right:26px;background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px;background-repeat:no-repeat}
+.composer select.tok option{font-size:16px;font-weight:500;color:var(--ink);background:var(--surface)}
+.composer input.tok{cursor:text}
+.composer input.tok.n{width:4.6ch;min-width:3ch;text-align:center}
+.composer input.tok.n.w5{width:5.6ch}
+@supports (field-sizing:content){.composer input.tok.n,.composer input.tok.n.w5{width:auto}}
+.composer .datetok{position:relative;display:inline-block;white-space:nowrap}
+.composer .datetok:focus-within{border-color:var(--tide);box-shadow:0 0 0 3px color-mix(in srgb,var(--tide) 25%,transparent)}
+.composer .dateinp{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;padding:0;border:0;cursor:pointer;font:inherit;color-scheme:inherit}
+.composer .dateinp::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.composer .trig{color:var(--trigger);font-weight:700}
+.composer .tok.trig{color:var(--trigger);background:var(--trigger-soft);border-color:color-mix(in srgb,var(--trigger-mark) 55%,var(--rule))}
+.composer-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s2)}
+.composer-head span{font-size:var(--t-xs);color:var(--ink-3);font-weight:600}
+.issues{margin-top:var(--s3);font-size:var(--t-sm);color:var(--bad);font-weight:600}
+.issues:empty{display:none}
+details.tune{margin-top:var(--s5);border-top:1px solid var(--rule)}
+details.tune>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:48px;cursor:pointer;font-weight:650}
+details.tune>summary::-webkit-details-marker{display:none}
+details.tune>summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg);margin-right:6px;transition:transform .2s var(--ease)}
+details.tune[open]>summary::after{transform:rotate(-135deg)}
+details.tune .tune-body{padding-bottom:var(--s2)}
+
+/* ---------- quote ---------- */
+.price{font-size:clamp(30px,7vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.price small{font-size:var(--t-md);font-weight:600;color:var(--ink-2);margin-left:6px;letter-spacing:0}
+.freq{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;margin:var(--s3) 0 var(--s2);max-width:360px}
+.freq i{aspect-ratio:1;border-radius:2px;background:var(--sunken)}
+.freq i.hit{background:var(--trigger-mark)}
+
+/* ---------- transaction progress ---------- */
+.tx{margin-top:var(--s4);border:1px solid var(--rule);border-radius:var(--r-md);padding:var(--s3) var(--s4);font-size:var(--t-sm);background:var(--surface)}
+.tx[hidden]{display:none}
+.tx ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.tx li{display:grid;grid-template-columns:18px 1fr;gap:10px;align-items:start;color:var(--ink-3)}
+.tx li .b{width:18px;height:18px;border-radius:50%;border:2px solid var(--rule-strong);margin-top:2px}
+.tx li.done{color:var(--ink)}
+.tx li.done .b{background:var(--ok);border-color:var(--ok)}
+.tx li.now{color:var(--ink);font-weight:600}
+.tx li.now .b{border-color:var(--trigger-mark);border-right-color:transparent;animation:spin .9s linear infinite}
+.tx li.fail{color:var(--bad);font-weight:600}
+.tx li.fail .b{background:var(--bad);border-color:var(--bad)}
+.tx .msg{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--rule);color:var(--ink-2);overflow-wrap:anywhere}
+.tx .msg:empty{display:none}
+.tx.bad{border-color:color-mix(in srgb,var(--bad) 45%,var(--rule));background:var(--bad-soft)}
+.tx.good{border-color:color-mix(in srgb,var(--ok) 45%,var(--rule))}
+
+/* ---------- detail ---------- */
+.status-head{display:flex;gap:var(--s4);align-items:flex-start}
+.status-head h1{font-size:var(--t-xl)}
+.rule-quote{font-size:var(--t-lg);font-weight:500;line-height:1.55}
+.rule-quote b{font-weight:700}
+.rule-quote .trig{color:var(--trigger);font-weight:700}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{position:relative;display:grid;grid-template-columns:20px 1fr;gap:var(--s3);padding-bottom:var(--s4)}
+.timeline li:last-child{padding-bottom:0}
+.timeline li::before{content:"";position:absolute;left:9px;top:22px;bottom:0;width:2px;background:var(--rule)}
+.timeline li:last-child::before{display:none}
+.timeline .b{width:20px;height:20px;border-radius:50%;border:2px solid var(--rule-strong);background:var(--surface);margin-top:2px;z-index:1}
+.timeline li.done .b{background:var(--ok);border-color:var(--ok)}
+.timeline li.now .b{border-color:var(--tide);box-shadow:0 0 0 4px var(--tide-soft)}
+.timeline small{display:block;color:var(--ink-3);font-size:var(--t-xs)}
+.scale{position:relative;height:84px;margin:var(--s4) 12px 0}
+.scale .track{position:absolute;left:0;right:0;top:40px;height:4px;border-radius:2px;background:var(--sunken)}
+.scale .pin{position:absolute;transform:translateX(-50%);font-size:var(--t-xs);font-weight:700;white-space:nowrap;display:flex;flex-direction:column;align-items:center}
+.scale .pin i{width:2px;height:18px;background:currentColor;display:block}
+.scale .pin.obs{top:0;color:var(--ink)}
+.scale .pin.obs i{margin-top:4px}
+.scale .pin.thr{top:42px;color:var(--trigger)}
+.scale .pin.thr i{margin-bottom:4px;order:-1}
+
+/* ---------- ordered steps ---------- */
+.steps{list-style:none;margin:0;padding:0}
+.steps>li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:var(--s3);padding:var(--s4) 0;border-top:1px solid var(--rule)}
+.steps>li:first-child{border-top:0;padding-top:0}
+.steps>li:last-child{padding-bottom:0}
+.steps .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:var(--t-xs);font-weight:700;background:var(--sunken);color:var(--ink-2)}
+.steps li.done .n{background:var(--ok);color:#fff}
+.steps li.next .n{background:var(--tide);color:var(--on-tide)}
+
+/* ---------- dialogs and toasts ---------- */
+dialog{border:0;padding:0;background:var(--surface);color:var(--ink);border-radius:var(--r-lg);box-shadow:var(--shadow-pop);width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px)}
+dialog::backdrop{background:rgba(10,18,24,.5)}
+dialog .dlg{padding:var(--s5);overflow:auto;max-height:calc(100dvh - 24px)}
+dialog .dlg-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s4)}
+dialog .x{width:44px;height:44px;margin:-10px -10px 0 0;border:0;background:transparent;color:var(--ink-2);border-radius:var(--r-sm);cursor:pointer;display:grid;place-items:center;flex:none}
+dialog .x:hover{background:var(--sunken)}
+@media (max-width:599px){
+  dialog{width:100vw;max-width:100vw;margin:auto 0 0;border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:92dvh}
+  dialog .dlg{padding:var(--s5) var(--s4) calc(var(--s5) + env(safe-area-inset-bottom));max-height:92dvh}
+}
+dialog[open]{animation:pop .2s var(--ease)}
+@keyframes pop{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.option{display:block;width:100%;text-align:left;padding:var(--s4);border:1px solid var(--rule-strong);border-radius:var(--r-md);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.option:hover{border-color:var(--tide)}
+.option b{display:block}
+.option span{display:block;font-size:var(--t-sm);color:var(--ink-2);margin-top:2px}
+.option+.option{margin-top:var(--s2)}
+.toasts{position:fixed;left:0;right:0;bottom:calc(var(--nav-h) + 12px + env(safe-area-inset-bottom));z-index:90;display:grid;gap:8px;justify-items:center;padding:0 var(--s4);pointer-events:none}
+@media (min-width:1024px){.toasts{left:auto;right:24px;bottom:24px;justify-items:end}}
+.toast{pointer-events:auto;max-width:440px;background:var(--ink);color:var(--paper);padding:12px 14px;border-radius:var(--r-md);box-shadow:var(--shadow-pop);font-size:var(--t-sm);font-weight:500;animation:pop .2s var(--ease)}
+.toast.bad{background:var(--bad);color:#fff}
+.banner{display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap;padding:10px var(--s4);background:var(--trigger-soft);color:var(--ink);border-bottom:1px solid var(--rule);font-size:var(--t-sm)}
+.banner[hidden]{display:none}
+
+/* ---------- theme toggle ---------- */
+.iconbtn{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--rule-strong);background:var(--surface);color:var(--ink-2);border-radius:var(--r-sm);cursor:pointer;flex:none}
+.iconbtn:hover{color:var(--ink);border-color:var(--ink-3)}
+
+/* ---------- home hero ---------- */
+.hero{position:relative;overflow:hidden;border:1px solid var(--rule);border-radius:var(--r-xl);padding:var(--s6) var(--s5);
+  background:radial-gradient(70% 90% at 100% 0%,var(--glow-warm),transparent 62%),radial-gradient(60% 80% at 0% 100%,var(--glow-cool),transparent 60%),var(--surface)}
+.hero-grid{display:grid;gap:var(--s6);grid-template-columns:minmax(0,1fr)}
+@media (min-width:1080px){.hero-grid{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);align-items:start}}
+@media (max-width:420px){.hero{padding:var(--s5) var(--s4)}}
+.live{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 10px;border:1px solid var(--rule-strong);border-radius:999px;font-size:var(--t-xs);color:var(--ink-2);background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
+.live b{color:var(--ink)}
+.display{font-size:var(--t-display);font-weight:800;line-height:1.02;letter-spacing:-.035em;margin:var(--s4) 0 0;max-width:13ch;text-wrap:balance}
+.lede{margin-top:var(--s4);font-size:clamp(16px,2.3vw,19px);line-height:1.55;color:var(--ink-2);max-width:46ch}
+.hero .actions{margin-top:var(--s5);max-width:480px}
+.herostats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:var(--s6) 0 0;border:1px solid var(--rule);border-radius:var(--r-lg);overflow:hidden;background:var(--rule);gap:1px}
+@media (min-width:640px) and (max-width:1079px){.herostats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.herostats>div{background:color-mix(in srgb,var(--surface) 92%,transparent);padding:var(--s4);min-width:0}
+.herostats dt{font-size:var(--t-xs);color:var(--ink-3);font-weight:600}
+.herostats dd{margin:4px 0 0;font-size:clamp(20px,4.6vw,26px);font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+.herostats dd small{font-size:var(--t-xs);font-weight:600;color:var(--ink-2);margin-left:3px}
+.herostats .sub{display:block;margin-top:4px;font-size:var(--t-xs);font-weight:600;color:var(--trigger)}
+
+/* ---------- live activity ---------- */
+.feed{background:color-mix(in srgb,var(--raised) 88%,transparent);border:1px solid var(--rule-strong);border-radius:var(--r-lg);padding:var(--s4) var(--s4) 0;box-shadow:var(--shadow-pop)}
+.feed-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s2)}
+.feed-head h2{font-size:var(--t-sm);font-weight:700;color:var(--ink-2);letter-spacing:0}
+.feed-head .src{font-size:var(--t-xs);font-weight:700;color:var(--ok);display:inline-flex;align-items:center;gap:6px}
+.feed-head .src::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.feed ol{list-style:none;margin:0;padding:0}
+.feed li a{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:var(--s3);align-items:center;padding:10px 0;border-top:1px solid var(--rule);color:var(--ink);text-decoration:none;min-height:56px}
+.feed li:first-child a{border-top:0}
+.feed li a:hover .ev-t{text-decoration:underline}
+.feed .ev-i{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--sunken);color:var(--ink-2)}
+.feed .ev-i.paid{background:var(--ok-soft);color:var(--ok)}
+.feed .ev-i.bought{background:var(--tide-soft);color:var(--tide)}
+.feed .ev-i.void{background:var(--trigger-soft);color:var(--trigger)}
+.feed .ev-t{display:block;font-size:var(--t-sm);font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .ev-s{display:block;font-size:var(--t-xs);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .ev-a{font-size:var(--t-xs);color:var(--ink-3);white-space:nowrap}
+.feed-foot{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3) var(--s4);margin:var(--s2) calc(-1 * var(--s4)) 0;padding:var(--s4);border-top:1px solid var(--rule-strong)}
+.feed-foot b{display:block;font-size:var(--t-lg);font-weight:800;letter-spacing:-.02em}
+.feed-foot span{display:block;font-size:var(--t-xs);color:var(--ink-3)}
+.feed-foot .bal{grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:var(--s3);border-top:1px dashed var(--rule-strong)}
+.feed-foot .bal span{display:inline}
+.feed-foot .bal b{color:var(--ok);display:inline-flex;align-items:center;gap:6px}
+.feed-foot .bal.off b{color:var(--bad)}
+.feed li{animation:rise .5s var(--ease) both}
+.feed li:nth-child(2){animation-delay:.06s}.feed li:nth-child(3){animation-delay:.12s}.feed li:nth-child(4){animation-delay:.18s}.feed li:nth-child(5){animation-delay:.24s}.feed li:nth-child(6){animation-delay:.3s}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- role entry ---------- */
+.roles{display:grid;gap:var(--s3);grid-template-columns:minmax(0,1fr)}
+@media (min-width:760px){.roles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.role{--c:var(--role-cover);position:relative;display:grid;grid-template-columns:84px minmax(0,1fr);gap:var(--s4);align-items:center;padding:var(--s4) var(--s4) var(--s4) var(--s3);
+  border:1px solid color-mix(in srgb,var(--c) 30%,var(--rule));border-radius:var(--r-lg);text-decoration:none;color:var(--ink);min-height:132px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c) 14%,var(--surface)),var(--surface) 70%);transition:border-color .2s var(--ease),transform .2s var(--ease)}
+.role:hover{border-color:var(--c);color:var(--ink);transform:translateY(-2px)}
+.role.earn{--c:var(--role-earn)} .role.look{--c:var(--role-look)}
+.role svg.ill{width:84px;height:84px}
+.role .k{font-size:var(--t-xs);color:var(--ink-3);font-weight:600}
+.role .t{display:block;font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--c);margin-top:2px}
+.role .d{display:block;font-size:var(--t-sm);color:var(--ink-2);margin-top:4px;padding-right:36px}
+.role .go{position:absolute;right:14px;bottom:14px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:var(--paper)}
+.role .go svg{width:16px;height:16px;stroke-width:2.2}
+.section{margin-top:var(--s7)}
+.section>h2{font-size:var(--t-xl);margin-bottom:var(--s4)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#app">Skip to content</a>
+
+<header class="topbar">
+  <a class="brand" href="#/" aria-label="ParamCover home"><span id="brandMark"></span><span>ParamCover</span></a>
+  <span class="env" id="envBadge" hidden></span>
+  <span class="grow"></span>
+  <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch to light theme"></button>
+  <button class="walletbtn" id="walletBtn" type="button" aria-haspopup="dialog"><span class="dot" aria-hidden="true"></span><span class="lbl" id="walletLbl">Connect wallet</span></button>
+</header>
+<div class="banner" id="netBanner" role="alert" hidden>
+  <span class="grow">Your wallet is on a different network. Transactions will fail until it uses GenLayer Studio.</span>
+  <button class="btn btn-secondary sm" type="button" id="switchNet">Switch network</button>
+</div>
+
+<nav class="tabs" aria-label="Main">
+  <a class="brand side-brand" href="#/" aria-label="ParamCover home"><span id="brandMark2"></span><span>ParamCover</span></a>
+  <ul id="tabs"></ul>
+</nav>
+
+<main id="app" tabindex="-1"></main>
+
+<footer class="foot">
+  <p>Contract <span class="addr" id="footAddr">not set</span> on GenLayer Studio. Prices come from public weather and earthquake records.</p>
+  <p id="footMode"></p>
+  <p>ParamCover demonstrates automatic parametric cover. It is not regulated insurance.</p>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgTitle"><div class="dlg" id="dlgBody"></div></dialog>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script type="module">
+import { createClient, createAccount } from "https://esm.sh/genlayer-js@latest";
+import { studionet } from "https://esm.sh/genlayer-js@latest/chains";
+
+const DEFAULT_CONTRACT_ADDRESS = "0xB5999Fa46b207aC32F2B6Ef9614D1a638dAFFd93";
+const ZERO = "0x0000000000000000000000000000000000000000";
+const WEI = 1000000000000000000n;
+const $ = (id) => document.getElementById(id);
+
+/* ---------- DOM helpers: contract data only ever reaches the page as text ---------- */
+const SVGNS = "http://www.w3.org/2000/svg";
+const ICONS = {
+  rain: ["M7 15a4 4 0 0 1-.4-7.98A5.5 5.5 0 0 1 17 8.5 3.5 3.5 0 0 1 17.5 15H7z", "M9 18l-1 3M13 18l-1 3M17 18l-1 3"],
+  sun: ["M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z", "M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"],
+  heat: ["M10 14.5V5a2 2 0 1 1 4 0v9.5a4 4 0 1 1-4 0z", "M12 9v7"],
+  frost: ["M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11", "M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"],
+  wind: ["M3 9h11a3 3 0 1 0-3-3", "M3 14h15a3 3 0 1 1-3 3", "M3 19h7"],
+  quake: ["M2 12h4l2-6 4 12 3-9 2 3h5"],
+  home: ["M3 11l9-8 9 8", "M5 10v10h14V10"],
+  shield: ["M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z", "M9 12l2 2 4-4"],
+  pool: ["M3 7c3-2 6 2 9 0s6-2 9 0", "M3 13c3-2 6 2 9 0s6-2 9 0", "M3 19c3-2 6 2 9 0s6-2 9 0"],
+  list: ["M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"],
+  flask: ["M9 3h6M10 3v6l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3", "M7.5 15h9"],
+  x: ["M6 6l12 12M18 6L6 18"],
+  copy: ["M9 9h11v11H9z", "M5 15H4V4h11v1"],
+  back: ["M15 6l-6 6 6 6"],
+  arrow: ["M5 12h14M13 6l6 6-6 6"],
+  sun2: ["M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z", "M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"],
+  moon: ["M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"],
+  check: ["M5 12l5 5 9-10"],
+  coin: ["M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z", "M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2s1.1 1.6 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1 0-2-.5-2.5-1.5M12 6.5v1.5M12 16v1.5"],
+};
+function icon(name, size) {
+  const svg = document.createElementNS(SVGNS, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("class", "ic");
+  svg.setAttribute("aria-hidden", "true");
+  if (size) { svg.style.width = size + "px"; svg.style.height = size + "px"; }
+  for (const d of ICONS[name] || []) {
+    const p = document.createElementNS(SVGNS, "path");
+    p.setAttribute("d", d);
+    svg.appendChild(p);
+  }
+  return svg;
+}
+function markSvg() {
+  const svg = document.createElementNS(SVGNS, "svg");
+  svg.setAttribute("viewBox", "0 0 28 28"); svg.setAttribute("class", "mark"); svg.setAttribute("aria-hidden", "true");
+  const parts = [["rect", { width: "28", height: "28", rx: "7", fill: "var(--tide)" }],
+    ["path", { d: "M5 11.5h18", stroke: "#F2B33D", "stroke-width": "1.6", "stroke-dasharray": "2 2" }],
+    ["path", { d: "M5 19c3 0 4-9 7-9s3 6 5 6 3-3 6-3", fill: "none", stroke: "var(--on-tide)", "stroke-width": "2", "stroke-linecap": "round" }]];
+  for (const [tag, attrs] of parts) { const el = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v); svg.appendChild(el); }
+  return svg;
+}
+function svgEl(tag, attrs, ...kids) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+  kids.forEach((k) => el.appendChild(k));
+  return el;
+}
+function illustration(kind) {
+  const svg = svgEl("svg", { viewBox: "0 0 84 84", class: "ill", "aria-hidden": "true" });
+  const c = "var(--c)", ink = "var(--ink)", soft = "color-mix(in srgb, var(--c) 22%, transparent)";
+  svg.appendChild(svgEl("rect", { x: "2", y: "2", width: "80", height: "80", rx: "18", fill: soft }));
+  if (kind === "cover") {
+    svg.append(
+      svgEl("path", { d: "M24 30a10 10 0 0 1 19-4 8 8 0 0 1 15 4 7 7 0 0 1-1 14H25a7 7 0 0 1-1-14z", fill: "var(--surface)", stroke: ink, "stroke-width": "2.2", "stroke-linejoin": "round" }),
+      svgEl("path", { d: "M30 50l-2 6M40 50l-2 6M50 50l-2 6", stroke: "var(--role-earn)", "stroke-width": "2.6", "stroke-linecap": "round" }),
+      svgEl("path", { d: "M14 62h56", stroke: c, "stroke-width": "2.4", "stroke-dasharray": "4 4", "stroke-linecap": "round" }),
+      svgEl("path", { d: "M40 74V60a10 10 0 0 1 20 0", fill: "none", stroke: c, "stroke-width": "3", "stroke-linecap": "round" }));
+  } else if (kind === "earn") {
+    svg.append(
+      svgEl("path", { d: "M14 58c6-3 10 3 16 0s10-3 16 0 10 3 16 0 6-1 8 0", fill: "none", stroke: c, "stroke-width": "2.6", "stroke-linecap": "round" }),
+      svgEl("ellipse", { cx: "42", cy: "50", rx: "14", ry: "5", fill: "var(--surface)", stroke: ink, "stroke-width": "2.2" }),
+      svgEl("ellipse", { cx: "42", cy: "42", rx: "14", ry: "5", fill: "var(--surface)", stroke: ink, "stroke-width": "2.2" }),
+      svgEl("ellipse", { cx: "42", cy: "34", rx: "14", ry: "5", fill: c, stroke: ink, "stroke-width": "2.2" }),
+      svgEl("path", { d: "M58 26l6-6m0 0h-5m5 0v5", fill: "none", stroke: c, "stroke-width": "2.6", "stroke-linecap": "round", "stroke-linejoin": "round" }));
+  } else {
+    svg.append(
+      svgEl("rect", { x: "16", y: "46", width: "8", height: "18", rx: "2", fill: c }),
+      svgEl("rect", { x: "28", y: "36", width: "8", height: "28", rx: "2", fill: c, opacity: ".7" }),
+      svgEl("rect", { x: "40", y: "50", width: "8", height: "14", rx: "2", fill: c, opacity: ".45" }),
+      svgEl("circle", { cx: "54", cy: "32", r: "11", fill: "var(--surface)", stroke: ink, "stroke-width": "2.6" }),
+      svgEl("path", { d: "M62 40l9 9", stroke: ink, "stroke-width": "3.2", "stroke-linecap": "round" }));
+  }
+  return svg;
+}
+function timeAgo(epoch) {
+  const d = nowSec() - Number(epoch);
+  if (!Number(epoch)) return "";
+  if (d < 60) return "just now";
+  if (d < 3600) return Math.floor(d / 60) + "m ago";
+  if (d < 86400) return Math.floor(d / 3600) + "h ago";
+  if (d < 86400 * 30) return Math.floor(d / 86400) + "d ago";
+  return new Date(Number(epoch) * 1000).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+}
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v === undefined || v === null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "text") el.textContent = v;
+    else if (k === "style") el.style.cssText = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat(3)) {
+    if (kid === null || kid === undefined || kid === false) continue;
+    el.appendChild(typeof kid === "string" || typeof kid === "number" ? document.createTextNode(String(kid)) : kid);
+  }
+  return el;
+}
+const clear = (el) => { while (el.firstChild) el.removeChild(el.firstChild); return el; };
+const put = (el, ...kids) => { clear(el); for (const k of kids.flat(3)) if (k !== null && k !== undefined && k !== false) el.append(k); return el; };
+const short = (a) => (a ? a.slice(0, 6) + "…" + a.slice(-4) : "-");
+const same = (a, b) => !!a && !!b && String(a).toLowerCase() === String(b).toLowerCase();
+
+function toast(text, bad) {
+  const t = h("div", { class: "toast" + (bad ? " bad" : ""), text });
+  $("toasts").appendChild(t);
+  setTimeout(() => t.remove(), 4500);
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast("Address copied"); } catch (e) { toast("Copying is not available in this browser", true); }
+}
+
+/* ---------- numbers, GEN and dates ---------- */
+function genToWei(s) {
+  const t = String(s).trim();
+  if (!t) return null;
+  const p = t.split(".");
+  if (p.length > 2) return null;
+  const whole = p[0] || "0", frac = p[1] || "";
+  if (!/^\d+$/.test(whole) || (frac && !/^\d+$/.test(frac)) || frac.length > 18) return null;
+  try { return BigInt(whole) * WEI + BigInt(frac.padEnd(18, "0") || "0"); } catch (e) { return null; }
+}
+function genStr(w, dp = 4) {
+  let wei;
+  try { wei = BigInt(w); } catch (e) { return String(w); }
+  const neg = wei < 0n; if (neg) wei = -wei;
+  const frac = (wei % WEI).toString().padStart(18, "0").slice(0, dp).replace(/0+$/, "");
+  const whole = (wei / WEI).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return (neg ? "-" : "") + whole + (frac ? "." + frac : "");
+}
+const pct = (bps) => (Number(bps) / 100).toFixed(Number(bps) % 100 === 0 ? 0 : 1) + "%";
+const tenths = (t) => (Number(t) / 10).toFixed(1);
+const unitLabel = (u) => (u === "C" ? "°C" : u === "M" ? "" : " " + u);
+const todayIso = () => new Date().toISOString().slice(0, 10);
+function addDays(iso, n) { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function daysBetween(a, b) { return Math.round((new Date(b + "T00:00:00Z") - new Date(a + "T00:00:00Z")) / 86400000); }
+const nowSec = () => Math.floor(Date.now() / 1000);
+const fmtEpoch = (e) => { try { return new Date(Number(e) * 1000).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }); } catch (x) { return String(e); } };
+const fmtDay = (iso) => { try { return new Date(iso + "T00:00:00Z").toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }); } catch (e) { return iso; } };
+function dur(sec) {
+  sec = Math.max(0, Math.floor(sec));
+  const d = Math.floor(sec / 86400), hh = Math.floor((sec % 86400) / 3600), mm = Math.floor((sec % 3600) / 60);
+  if (d > 0) return `${d}d ${hh}h`;
+  if (hh > 0) return `${hh}h ${mm}m`;
+  return `${Math.max(1, mm)} min`;
+}
+
+/* ---------- catalogue ---------- */
+const PERIL_UI = {
+  RAIN_EXCESS: { icon: "rain", noun: "heavy rain", measure: "total rain over the period reaches", tail: "or more", def: 60 },
+  RAIN_DEFICIT: { icon: "sun", noun: "a dry spell", measure: "total rain over the period stays at", tail: "or less", def: 10 },
+  HEAT_WAVE: { icon: "heat", noun: "extreme heat", measure: "the hottest day reaches", tail: "or more", def: 42 },
+  FROST: { icon: "frost", noun: "a hard frost", measure: "the coldest night drops to", tail: "or below", def: -8 },
+  STORM_WIND: { icon: "wind", noun: "storm winds", measure: "the strongest gust reaches", tail: "or more", def: 90 },
+  QUAKE: { icon: "quake", noun: "an earthquake", measure: "a quake of magnitude", tail: "or more hits within", def: 6 },
+};
+const CITIES = [
+  ["Dubai", "25.2048", "55.2708"], ["Tehran", "35.6892", "51.3890"], ["Mumbai", "19.0760", "72.8777"],
+  ["London", "51.5072", "-0.1276"], ["New York", "40.7128", "-74.0060"], ["Tokyo", "35.6762", "139.6503"],
+  ["Jakarta", "-6.2088", "106.8456"], ["Sao Paulo", "-23.5505", "-46.6333"], ["Cairo", "30.0444", "31.2357"],
+  ["Sydney", "-33.8688", "151.2093"], ["Istanbul", "41.0082", "28.9784"], ["Lagos", "6.5244", "3.3792"],
+];
+const STATUS = { ACTIVE: "Active", PAID: "Paid out", EXPIRED: "Expired", VOID: "Voided, refunded", CANCELLED: "Cancelled" };
+const badge = (s) => h("span", { class: "badge " + s, text: STATUS[s] || s });
+const perilTitle = (k) => state.perils?.find((p) => p.peril === k)?.title || k;
+const glyph = (k, lg) => h("span", { class: "glyph" + (lg ? " lg" : ""), "aria-hidden": "true" }, icon((PERIL_UI[k] || PERIL_UI.RAIN_EXCESS).icon));
+function ruleText(p) {
+  const ui = PERIL_UI[p.peril];
+  const v = tenths(p.threshold_t) + unitLabel(p.unit);
+  return p.peril === "QUAKE" ? `${ui.measure} ${v} ${ui.tail} ${p.radius_km} km` : `${ui.measure} ${v} ${ui.tail}`;
+}
+
+/* ---------- contract address ---------- */
+const okAddr = (v) => /^0x[0-9a-fA-F]{40}$/.test(String(v || ""));
+function resolveContract() {
+  try {
+    const q = new URLSearchParams(location.search).get("contract");
+    if (okAddr(q)) { try { localStorage.setItem("paramcover.contract", q); } catch (e) {} return q; }
+  } catch (e) {}
+  try { const s = localStorage.getItem("paramcover.contract"); if (okAddr(s)) return s; } catch (e) {}
+  return DEFAULT_CONTRACT_ADDRESS;
+}
+const CONTRACT_ADDRESS = resolveContract();
+const hasContract = CONTRACT_ADDRESS !== ZERO;
+$("footAddr").textContent = hasContract ? CONTRACT_ADDRESS : "not set";
+$("brandMark").appendChild(markSvg());
+$("brandMark2").appendChild(markSvg());
+
+/* ---------- wallet and network ---------- */
+const readClient = createClient({ chain: studionet });
+let client = null, account = null, usingInjected = false, walletKind = "";
+const net = { ok: true };
+const RPC_URL = studionet.rpcUrls?.default?.http?.[0];
+const hexChainId = () => "0x" + Number(studionet.id).toString(16);
+async function checkChain() {
+  if (!usingInjected || !window.ethereum) { net.ok = true; drawNet(); return true; }
+  try {
+    const cur = await window.ethereum.request({ method: "eth_chainId" });
+    net.ok = String(cur).toLowerCase() === hexChainId().toLowerCase();
+  } catch (e) { net.ok = true; }
+  drawNet();
+  return net.ok;
+}
+async function switchChain() {
+  try { await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId() }] }); }
+  catch (e) {
+    if (e?.code === 4001) throw e;
+    await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{
+      chainId: hexChainId(), chainName: studionet.name || "GenLayer Studio",
+      nativeCurrency: studionet.nativeCurrency || { name: "GEN", symbol: "GEN", decimals: 18 },
+      rpcUrls: studionet.rpcUrls?.default?.http || [] }] });
+  }
+  return checkChain();
+}
+function drawNet() { $("netBanner").hidden = net.ok || !account; drawWallet(); }
+$("switchNet").addEventListener("click", async () => {
+  try { if (await switchChain()) toast("Switched to GenLayer Studio"); } catch (e) { toast(explain(e), true); }
+});
+if (window.ethereum?.on) {
+  window.ethereum.on("chainChanged", () => checkChain());
+  window.ethereum.on("accountsChanged", (accs) => {
+    if (!usingInjected) return;
+    if (!accs || !accs.length) return disconnect();
+    account = accs[0]; client = createClient({ chain: studionet, account });
+    toast("Wallet account changed"); route();
+  });
+}
+function drawWallet() {
+  const btn = $("walletBtn");
+  btn.classList.toggle("on", !!account && net.ok);
+  btn.classList.toggle("warn", !!account && !net.ok);
+  const narrow = window.matchMedia && window.matchMedia("(max-width: 419px)").matches;
+  $("walletLbl").textContent = account ? (narrow ? account.slice(0, 4) + "\u2026" + account.slice(-4) : short(account)) : narrow ? "Connect" : "Connect wallet";
+  btn.title = account ? (walletKind === "test" ? "Test session " : "") + account : "";
+  btn.setAttribute("aria-label", account ? "Wallet " + account + ", open wallet menu" : "Connect wallet");
+}
+async function balanceOf(addr) {
+  if (!RPC_URL || !addr) return null;
+  try {
+    const res = await fetch(RPC_URL, { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getBalance", params: [addr, "latest"] }) });
+    const body = await res.json();
+    return body && typeof body.result === "string" ? BigInt(body.result) : null;
+  } catch (e) { return null; }
+}
+const TEST_KEY_SLOT = "paramcover.testsession";
+const readTestKey = () => { try { const v = sessionStorage.getItem(TEST_KEY_SLOT); return /^0x[0-9a-f]{64}$/.test(v || "") ? v : ""; } catch (e) { return ""; } };
+const writeTestKey = (v) => { try { if (v) sessionStorage.setItem(TEST_KEY_SLOT, v); else sessionStorage.removeItem(TEST_KEY_SLOT); } catch (e) {} };
+function randomKey() { const b = new Uint8Array(32); crypto.getRandomValues(b); return "0x" + Array.from(b, (x) => x.toString(16).padStart(2, "0")).join(""); }
+function useLocalAccount(pk, kind) {
+  const acct = createAccount(pk);
+  account = acct.address; usingInjected = false; walletKind = kind;
+  client = createClient({ chain: studionet, account: acct });
+  net.ok = true; drawNet();
+}
+function startTestSession(silent) {
+  let pk = readTestKey();
+  if (!pk) { pk = randomKey(); writeTestKey(pk); }
+  useLocalAccount(pk, "test");
+  if (!silent) { closeDialog(); toast("Test session started. Get test GEN before sending value."); route(); }
+}
+async function connectInjected(errEl) {
+  if (!window.ethereum) { errEl.textContent = "No browser wallet was found. Open this page inside your wallet app's browser, or start a test session."; return; }
+  try {
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    account = accounts[0]; usingInjected = true; walletKind = "injected";
+    client = createClient({ chain: studionet, account });
+    writeTestKey("");
+    if (!(await checkChain())) { try { await switchChain(); } catch (e) {} }
+    closeDialog(); toast("Wallet connected"); route();
+  } catch (e) { errEl.textContent = explain(e); }
+}
+function connectKey(input, errEl) {
+  let pk = input.value.trim();
+  if (/^[0-9a-fA-F]{64}$/.test(pk)) pk = "0x" + pk;
+  if (!/^0x[0-9a-fA-F]{64}$/.test(pk)) { input.setAttribute("aria-invalid", "true"); errEl.textContent = "A private key is 64 hexadecimal characters, optionally starting with 0x."; input.focus(); return; }
+  try { useLocalAccount(pk, "key"); writeTestKey(""); closeDialog(); toast("Account connected"); route(); }
+  catch (e) { errEl.textContent = "This key could not be used: " + explain(e); }
+}
+function disconnect() { writeTestKey(""); client = null; account = null; usingInjected = false; walletKind = ""; net.ok = true; drawNet(); closeDialog(); toast("Disconnected"); route(); }
+
+/* ---------- dialogs ---------- */
+const dlg = $("dlg");
+let dlgResolve = null, dlgReturnFocus = null;
+function openDialog(title, ...content) {
+  if (!dlg.open) dlgReturnFocus = document.activeElement;
+  put($("dlgBody"),
+    h("div", { class: "dlg-head" }, h("h2", { id: "dlgTitle", text: title }),
+      h("button", { class: "x", type: "button", "aria-label": "Close", onclick: () => closeDialog(false) }, icon("x"))),
+    ...content);
+  if (!dlg.open) dlg.showModal();
+}
+function settle(value) { if (dlgResolve) { const r = dlgResolve; dlgResolve = null; r(!!value); } }
+function closeDialog(value) {
+  settle(value);
+  if (dlg.open) dlg.close();
+}
+dlg.addEventListener("close", () => { settle(false); if (dlgReturnFocus && document.contains(dlgReturnFocus)) dlgReturnFocus.focus(); dlgReturnFocus = null; });
+dlg.addEventListener("click", (e) => { if (e.target === dlg) closeDialog(false); });
+function confirmAction({ title, intro, rows = [], note, confirm, danger }) {
+  return new Promise((resolve) => {
+    openDialog(title,
+      intro ? h("p", { class: "muted", text: intro }) : null,
+      rows.length ? h("dl", { class: "dl", style: "margin-top:16px" }, rows.map(([k, v]) => [h("dt", { text: k }), h("dd", { class: "num", text: v })])) : null,
+      note ? h("p", { class: "callout small", style: "margin-top:16px", text: note }) : null,
+      h("div", { class: "actions", style: "margin-top:24px" },
+        h("button", { class: "btn btn-secondary", type: "button", text: "Go back", onclick: () => closeDialog(false) }),
+        h("button", { class: "btn " + (danger ? "btn-danger" : "btn-primary"), type: "button", id: "dlgConfirm", text: confirm, onclick: () => closeDialog(true) })));
+    dlgResolve = resolve;
+    setTimeout(() => $("dlgConfirm")?.focus(), 30);
+  });
+}
+async function openWallet() {
+  const err = h("p", { class: "err", role: "alert" });
+  const pk = h("input", { class: "input", id: "pkIn", type: "password", placeholder: "0x followed by 64 characters", autocapitalize: "off", autocomplete: "off", spellcheck: "false" });
+  const addrIn = h("input", { class: "input", id: "addrIn", value: hasContract ? CONTRACT_ADDRESS : "", placeholder: "0x followed by 40 characters", autocapitalize: "off", autocomplete: "off", spellcheck: "false" });
+  const addrErr = h("p", { class: "err", role: "alert" });
+  const bal = h("span", { class: "num", text: "…" });
+  const connectedBlock = account ? h("div", { class: "inset stack" },
+    h("div", { class: "row between wrap" }, h("span", { class: "small muted", text: walletKind === "test" ? "Test session" : walletKind === "key" ? "Private key account" : "Browser wallet" }),
+      h("span", { class: "small" }, "Balance ", bal, " GEN")),
+    h("p", { class: "addr small", text: account }),
+    h("div", { class: "actions" },
+      h("button", { class: "btn btn-secondary sm", type: "button", onclick: () => copyText(account) }, icon("copy", 16), "Copy address"),
+      h("button", { class: "btn btn-danger sm", type: "button", text: "Disconnect", onclick: disconnect }))) : null;
+  openDialog(account ? "Wallet" : "Connect a wallet",
+    connectedBlock,
+    h("div", { style: account ? "margin-top:24px" : null },
+      h("h3", { text: account ? "Switch account" : "Choose how to sign" }),
+      h("div", { style: "margin-top:12px" },
+        h("button", { class: "option", type: "button", onclick: () => connectInjected(err) }, h("b", { text: "Browser wallet" }), h("span", { text: "MetaMask, Rabby or any injected wallet. On a phone, open this page in your wallet app's browser." })),
+        h("button", { class: "option", type: "button", onclick: () => startTestSession(false) }, h("b", { text: "Test session" }), h("span", { text: "A throwaway account that lives in this tab. The fastest way to try everything on Studio." })))),
+    h("details", { class: "tune" }, h("summary", { text: "Use a Studio private key" }),
+      h("div", { class: "tune-body" },
+        h("div", { class: "field" }, h("label", { for: "pkIn", text: "Private key" }), pk,
+          h("p", { class: "help", text: "Testnet keys only. The key stays in this tab and only signs your transactions." })),
+        h("button", { class: "btn btn-secondary block", type: "button", style: "margin-top:12px", text: "Use this key", onclick: () => connectKey(pk, err) }))),
+    err,
+    h("details", { class: "tune", open: !hasContract }, h("summary", { text: "Contract address" }),
+      h("div", { class: "tune-body" },
+        h("div", { class: "field" }, h("label", { for: "addrIn" }, "ParamCover contract", h("span", { class: "req", "aria-hidden": "true", text: "*" })), addrIn,
+          h("p", { class: "help", text: "The address of a deployed ParamCover contract. It is remembered in this browser." }), addrErr),
+        h("button", { class: "btn btn-secondary block", type: "button", style: "margin-top:12px", text: "Use this contract", onclick: () => {
+          const v = addrIn.value.trim();
+          if (!okAddr(v)) { addrIn.setAttribute("aria-invalid", "true"); addrErr.textContent = "Enter a 0x address with 40 hexadecimal characters."; addrIn.focus(); return; }
+          try { localStorage.setItem("paramcover.contract", v); } catch (e) {}
+          location.search = "?contract=" + v;
+        } }))));
+  if (account) { const b = await balanceOf(account); bal.textContent = b === null ? "unknown" : genStr(b, 2); }
+}
+$("walletBtn").addEventListener("click", openWallet);
+function drawTheme() {
+  const light = document.documentElement.dataset.theme === "light";
+  put($("themeBtn"), icon(light ? "moon" : "sun2", 18));
+  $("themeBtn").setAttribute("aria-label", light ? "Switch to dark theme" : "Switch to light theme");
+  $("themeColor").setAttribute("content", light ? "#F2F4F3" : "#0B1418");
+}
+$("themeBtn").addEventListener("click", () => {
+  const light = document.documentElement.dataset.theme !== "light";
+  if (light) document.documentElement.dataset.theme = "light"; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem("paramcover.theme", light ? "light" : "dark"); } catch (e) {}
+  drawTheme();
+});
+drawTheme();
+
+/* ---------- contract calls and transaction progress ---------- */
+function unwrap(receipt) {
+  let v = receipt?.consensus_data?.leader_receipt?.[0]?.result?.payload?.readable;
+  if (v === undefined) return null;
+  for (let i = 0; i < 3; i++) {
+    if (typeof v !== "string") break;
+    const t = v.trim();
+    if (!(t.startsWith("{") || t.startsWith("[") || t.startsWith('"'))) break;
+    try { v = JSON.parse(v); } catch (e) { break; }
+  }
+  return v;
+}
+const read = (functionName, args = []) => readClient.readContract({ address: CONTRACT_ADDRESS, functionName, args });
+async function readJson(functionName, args = []) {
+  const raw = await read(functionName, args);
+  return typeof raw === "string" ? JSON.parse(raw) : raw;
+}
+function explain(e) {
+  const m = String(e?.shortMessage || e?.details || e?.message || e || "");
+  if (e?.code === 4001 || /user rejected|user denied|rejected the request|denied transaction/i.test(m)) return "You declined the request in your wallet. Nothing was sent.";
+  if (/insufficient funds|insufficient balance/i.test(m)) return "This account does not have enough GEN for this transaction.";
+  if (/failed to fetch|networkerror|network error|timeout|timed out|ECONN|load failed/i.test(m)) return "GenLayer Studio could not be reached. Check your connection and try again.";
+  return m.length > 320 ? m.slice(0, 320) + "…" : m || "Unknown error";
+}
+const busy = new Set();
+function txPanel() {
+  const steps = [["sign", "Waiting for your signature"], ["sent", "Submitted to the network"], ["accepted", "Accepted by validators"], ["final", "Finalized"]];
+  const items = steps.map(([k, t]) => h("li", { "data-k": k }, h("span", { class: "b", "aria-hidden": "true" }), h("span", { text: t })));
+  const msg = h("div", { class: "msg" });
+  const el = h("div", { class: "tx", role: "status", "aria-live": "polite", hidden: true }, h("ol", {}, items), msg);
+  return {
+    el,
+    reset() { el.hidden = true; el.classList.remove("bad", "good"); items.forEach((li) => (li.className = "")); clear(msg); },
+    at(key, text) {
+      el.hidden = false; el.classList.remove("bad");
+      let reached = false;
+      for (const li of items) {
+        if (li.dataset.k === key) { li.className = "now"; reached = true; }
+        else li.className = reached ? "" : "done";
+      }
+      if (text !== undefined) put(msg, text);
+    },
+    accepted(text) { items.forEach((li) => (li.className = li.dataset.k === "final" ? "now" : "done")); el.classList.add("good"); if (text !== undefined) put(msg, text); },
+    done(text) { el.classList.add("good"); if (text !== undefined) put(msg, text); },
+    final(text) { items.forEach((li) => (li.className = "done")); put(msg, text === undefined ? "Finalized. This result is now permanent." : text); },
+    fail(text, hint) {
+      el.hidden = false; el.classList.add("bad");
+      const cur = items.find((li) => li.className === "now") || items[0];
+      cur.className = "fail";
+      put(msg, h("b", { text }), hint ? h("div", { style: "margin-top:4px", text: hint }) : null);
+    },
+    note(text) { el.hidden = false; put(msg, text); },
+  };
+}
+function needClient() {
+  if (client) return true;
+  toast("Connect a wallet to continue", true);
+  openWallet();
+  return false;
+}
+async function write(ui, label, functionName, args, valueWei) {
+  if (!needClient()) return null;
+  const key = functionName + ":" + JSON.stringify(args, (k, v) => (typeof v === "bigint" ? v.toString() : v));
+  if (busy.has(key)) return null;
+  busy.add(key);
+  ui.reset();
+  try {
+    if (usingInjected && !(await checkChain())) {
+      ui.at("sign", "Switching your wallet to GenLayer Studio…");
+      try { await switchChain(); } catch (e) { ui.fail("Your wallet is on another network.", "Switch to GenLayer Studio and try again."); return null; }
+    }
+    const value = valueWei ?? 0n;
+    if (value > 0n) {
+      const bal = await balanceOf(account);
+      if (bal !== null && bal < value) {
+        ui.at("sign");
+        ui.fail(`Not enough GEN: this needs ${genStr(value)} GEN and the account holds ${genStr(bal)} GEN.`, isSandbox() ? "Use “Request 100 test GEN” on the Pool or Lab page, then try again." : "Top up the account and try again.");
+        return null;
+      }
+    }
+    ui.at("sign", usingInjected ? `Confirm ${label} in your wallet.` : `Signing ${label}…`);
+    const slow = setTimeout(() => ui.note("Still waiting for the wallet. Open your wallet app and look for a pending request."), 20000);
+    let hash;
+    try { hash = await client.writeContract({ address: CONTRACT_ADDRESS, functionName, args, value }); }
+    finally { clearTimeout(slow); }
+    ui.at("sent", h("span", {}, "Transaction ", h("span", { class: "addr", text: short(hash) }), " is with the validators. This usually takes under a minute."));
+    const receipt = await client.waitForTransactionReceipt({ hash, status: "ACCEPTED", interval: 3000, retries: 120 });
+    const result = unwrap(receipt);
+    const lr = receipt?.consensus_data?.leader_receipt?.[0];
+    if (lr?.execution_result === "ERROR") {
+      ui.at("accepted");
+      ui.fail("The contract refused this call.", typeof result === "string" && result ? result.slice(0, 400) : "No reason was returned.");
+      return null;
+    }
+    if (result && typeof result === "object" && result.rejected) {
+      ui.at("accepted");
+      ui.fail("Refused: " + result.rejected, `The ${genStr(result.refunded_wei)} GEN you sent was credited to your balance. Withdraw it on the Pool page.`);
+      return null;
+    }
+    ui.accepted("Accepted by validators. Waiting for finalization; the result already counts.");
+    client.waitForTransactionReceipt({ hash, status: "FINALIZED", interval: 5000, retries: 120 })
+      .then(() => ui.final())
+      .catch(() => ui.note("Accepted. Finalization is taking longer than usual; the result stands unless it is appealed."));
+    return result === null ? true : result;
+  } catch (e) {
+    ui.fail(explain(e));
+    return null;
+  } finally { busy.delete(key); }
+}
+async function runButton(btn, fn) {
+  if (!btn || btn.disabled) return;
+  const label = btn.textContent;
+  btn.disabled = true; btn.setAttribute("aria-busy", "true");
+  put(btn, h("span", { class: "spin", "aria-hidden": "true" }), label);
+  try { return await fn(); }
+  finally { if (document.contains(btn)) { btn.disabled = false; btn.removeAttribute("aria-busy"); btn.textContent = label; } }
+}
+
+/* ---------- shared state ---------- */
+const state = { cfg: null, perils: null, bootError: "" };
+async function boot() {
+  if (!hasContract) return;
+  try {
+    state.cfg = await readJson("get_config");
+    state.perils = await readJson("get_perils");
+    state.bootError = "";
+    const b = $("envBadge");
+    b.hidden = false; b.textContent = state.cfg.mode === "sandbox" ? "Sandbox" : "Production"; b.className = "env " + state.cfg.mode;
+    $("footMode").textContent = state.cfg.mode === "sandbox" ? "Sandbox contract: past dates are allowed so policies settle at once." : "Production contract.";
+    b.title = state.cfg.mode === "sandbox" ? "Sandbox contract: past dates are allowed so policies settle at once" : "Production contract";
+  } catch (e) { state.bootError = explain(e); }
+}
+const isSandbox = () => state.cfg?.mode === "sandbox";
+const salesPaused = () => state.cfg?.sales_paused === true || state.cfg?.sales_paused === "1";
+const perilSpec = (k) => state.perils.find((p) => p.peril === k);
+
+/* ---------- shared views ---------- */
+function gate(root) {
+  if (!hasContract) {
+    put(root, h("div", { class: "panel stack measure" },
+      h("h1", { text: "Connect ParamCover to a contract" }),
+      h("p", { class: "muted", text: "This page reads and writes a deployed ParamCover contract on GenLayer Studio. Add its address to begin. Browsing needs nothing else; a wallet is only needed to buy cover or provide liquidity." }),
+      h("button", { class: "btn btn-primary", type: "button", text: "Add contract address", onclick: openWallet })));
+    return true;
+  }
+  if (state.bootError) {
+    put(root, h("div", { class: "panel stack measure", role: "alert" },
+      h("h1", { text: "The contract could not be reached" }),
+      h("p", { class: "muted", text: state.bootError }),
+      h("p", { class: "xs addr", text: "Contract " + CONTRACT_ADDRESS }),
+      h("div", { class: "actions" },
+        h("button", { class: "btn btn-primary", type: "button", text: "Try again", onclick: async () => { state.bootError = ""; await boot(); route(); } }),
+        h("button", { class: "btn btn-secondary", type: "button", text: "Change contract", onclick: openWallet }))));
+    return true;
+  }
+  return false;
+}
+const skel = (hgt = 64, n = 1) => Array.from({ length: n }, () => h("div", { class: "skel", style: `height:${hgt}px;margin-bottom:10px`, "aria-hidden": "true" }));
+function connectPrompt(text) {
+  return h("div", { class: "inset stack" }, h("p", { class: "muted small", text }),
+    h("button", { class: "btn btn-primary block", type: "button", text: "Connect wallet", onclick: openWallet }));
+}
+function policyRow(p) {
+  return h("li", {}, h("a", { class: "prow", href: "#/policy/" + p.id },
+    glyph(p.peril),
+    h("span", { style: "min-width:0" }, h("span", { class: "t", text: `${p.label}, ${perilTitle(p.peril).toLowerCase()}` }),
+      h("span", { class: "s", text: `${fmtDay(p.start_date)} to ${fmtDay(p.end_date)}` }),
+      h("span", { class: "s", text: (p.cmp === "LTE" ? "Trigger ≤ " : "Trigger ≥ ") + tenths(p.threshold_t) + unitLabel(p.unit) + (p.radius_km ? ` within ${p.radius_km} km` : "") })),
+    h("span", { class: "e" }, h("b", { class: "num", text: genStr(p.coverage, 2) + " GEN" }), badge(p.status))));
+}
+function policyTable(items) {
+  return h("table", { class: "ptable only-wide" },
+    h("caption", { class: "sr", text: "Policies" }),
+    h("thead", {}, h("tr", {}, ["Policy", "Place and risk", "Window (UTC)", "Trigger", "Cover", "Status"].map((t, i) => h("th", { scope: "col", class: i === 4 ? "r" : null, text: t })))),
+    h("tbody", {}, items.map((p) => h("tr", { onclick: (e) => { if (e.target.tagName !== "A") location.hash = "#/policy/" + p.id; } },
+      h("td", {}, h("a", { href: "#/policy/" + p.id, text: p.id })),
+      h("td", {}, h("span", { class: "row", style: "gap:10px" }, glyph(p.peril), h("span", {}, h("b", { text: p.label }), h("div", { class: "xs", text: perilTitle(p.peril) })))),
+      h("td", { text: `${fmtDay(p.start_date)} to ${fmtDay(p.end_date)}` }),
+      h("td", { text: (p.cmp === "LTE" ? "≤ " : "≥ ") + tenths(p.threshold_t) + unitLabel(p.unit) + (p.radius_km ? `, ${p.radius_km} km` : "") }),
+      h("td", { class: "r num", text: genStr(p.coverage, 2) + " GEN" }),
+      h("td", {}, badge(p.status))))));
+}
+const policyCollection = (items) => [policyTable(items), h("ul", { class: "plist only-narrow" }, items.map(policyRow))];
+
+/* ---------- composer: the policy, written as a sentence ---------- */
+const bs = { peril: "HEAT_WAVE", city: 0, lat: "", lon: "", label: "", start: "", end: "", thr: "", radius: 200, quote: null, coverage: "10", capacity: 0 };
+function initBuyDefaults(perilFromUrl) {
+  if (perilFromUrl && PERIL_UI[perilFromUrl] && perilFromUrl !== bs.peril) { bs.peril = perilFromUrl; bs.thr = ""; bs.quote = null; }
+  const city = CITIES[bs.city] || CITIES[0];
+  if (!bs.lat) { bs.lat = city[1]; bs.lon = city[2]; bs.label = city[0]; }
+  if (!bs.start) {
+    const lead = isSandbox() ? 2 : Math.ceil(state.cfg.min_lead_seconds / 86400) + 2;
+    bs.start = addDays(todayIso(), lead); bs.end = addDays(bs.start, 4);
+  }
+  if (bs.thr === "") bs.thr = String(PERIL_UI[bs.peril].def);
+  fitWindow();
+}
+function fitWindow() {
+  const spec = perilSpec(bs.peril);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(bs.start)) return;
+  const days = /^\d{4}-\d{2}-\d{2}$/.test(bs.end) ? daysBetween(bs.start, bs.end) + 1 : 0;
+  const want = Math.min(Math.max(days, spec.min_days), spec.max_days);
+  if (want !== days) bs.end = addDays(bs.start, want - 1);
+}
+const COORD_OK = /^-?\d{1,3}(\.\d{1,4})?$/;
+function placeProblem() {
+  if (!bs.label) return "Give the place a name.";
+  if (!COORD_OK.test(bs.lat) || Math.abs(Number(bs.lat)) > 90) return "Latitude must be between -90 and 90, with at most 4 decimals.";
+  if (!COORD_OK.test(bs.lon) || Math.abs(Number(bs.lon)) > 180) return "Longitude must be between -180 and 180, with at most 4 decimals.";
+  return "";
+}
+function windowProblem() {
+  const spec = perilSpec(bs.peril);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(bs.start) || !/^\d{4}-\d{2}-\d{2}$/.test(bs.end)) return "Choose both dates.";
+  const days = daysBetween(bs.start, bs.end) + 1;
+  if (days < 1) return "The end date is before the start date.";
+  if (days < spec.min_days || days > spec.max_days) return `${spec.title} cover lasts ${spec.min_days} to ${spec.max_days} days.`;
+  if (!state.cfg.allow_backdated) {
+    if (new Date(bs.start + "T00:00:00Z").getTime() / 1000 < nowSec() + state.cfg.min_lead_seconds) return `Cover must start at least ${state.cfg.min_lead_seconds / 86400} days from now.`;
+  }
+  const endEpoch = new Date(bs.end + "T00:00:00Z").getTime() / 1000 + 86400;
+  if (endEpoch > nowSec() + state.cfg.max_horizon_days * 86400) return `Cover must end within ${state.cfg.max_horizon_days} days.`;
+  return "";
+}
+function thresholdProblem() {
+  const spec = perilSpec(bs.peril);
+  const t = Math.round(Number(bs.thr) * 10);
+  if (bs.thr === "" || !/^-?\d+(\.\d)?$/.test(String(bs.thr).trim())) return "Use a number with at most one decimal for the trigger.";
+  if (t < spec.threshold_min_t || t > spec.threshold_max_t) return `The trigger must be between ${tenths(spec.threshold_min_t)} and ${tenths(spec.threshold_max_t)}${unitLabel(spec.unit)}.`;
+  if (bs.peril === "QUAKE" && !(bs.radius >= 10 && bs.radius <= 500)) return "The radius must be between 10 and 500 km.";
+  return "";
+}
+function coverageProblem() {
+  const mn = Number(state.cfg.min_coverage_gen || 1), mx = Number(state.cfg.max_coverage_gen || 0);
+  if (!/^\d+$/.test(bs.coverage) || Number(bs.coverage) < mn) return `Cover is a whole number of GEN, at least ${mn}.`;
+  if (mx && Number(bs.coverage) > mx) return `Cover can be at most ${mx} GEN per policy.`;
+  if (bs.quote && Number(bs.coverage) > bs.capacity) return bs.capacity > 0 ? `The pool can cover at most ${bs.capacity} GEN for this risk right now.` : "The pool has no free capacity for this risk right now.";
+  return "";
+}
+const termsProblem = (p) => p.place || p.window || p.thr;
+
+function fmtShortDay(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || "")) return "pick a date";
+  const d = new Date(iso + "T00:00:00Z");
+  const opts = { day: "numeric", month: "short", timeZone: "UTC" };
+  if (d.getUTCFullYear() !== new Date().getUTCFullYear()) opts.year = "numeric";
+  return d.toLocaleDateString("en-GB", opts);
+}
+function dateTok(value, label, onChange) {
+  const text = h("span", { "aria-hidden": "true", text: fmtShortDay(value) });
+  const inp = h("input", { class: "dateinp", type: "date", value, "aria-label": label, "aria-describedby": "composerIssues" });
+  const wrap = h("span", { class: "tok datetok" }, text, inp);
+  inp.addEventListener("click", () => { try { inp.showPicker(); } catch (e) {} });
+  inp.addEventListener("change", () => { text.textContent = fmtShortDay(inp.value); onChange(inp.value); });
+  wrap._set = (v) => { inp.value = v; text.textContent = fmtShortDay(v); };
+  wrap._invalid = (bad) => { wrap.setAttribute("aria-invalid", bad ? "true" : "false"); inp.setAttribute("aria-invalid", bad ? "true" : "false"); };
+  return wrap;
+}
+function composer(onChange) {
+  const spec = perilSpec(bs.peril);
+  const ui = PERIL_UI[bs.peril];
+  const issues = h("p", { class: "issues", role: "alert", id: "composerIssues" });
+  const tok = (props) => h("input", { class: "tok", autocomplete: "off", spellcheck: "false", "aria-describedby": "composerIssues", ...props });
+  const cov = tok({ class: "tok n w5", inputmode: "numeric", value: bs.coverage, "aria-label": "Cover amount in GEN" });
+  const peril = h("select", { class: "tok", "aria-label": "Risk to cover", "data-k": "peril" },
+    state.perils.map((p) => h("option", { value: p.peril, selected: p.peril === bs.peril, text: PERIL_UI[p.peril].noun })));
+  const place = h("select", { class: "tok", "aria-label": "Place" },
+    CITIES.map((c, i) => h("option", { value: String(i), selected: bs.city === i, text: c[0] })),
+    h("option", { value: "-1", selected: bs.city === -1, text: bs.city === -1 ? bs.label || "your place" : "another place…" }));
+  const from = dateTok(bs.start, "First day of cover, UTC", (v) => { bs.start = v; fire(true); });
+  const to = dateTok(bs.end, "Last day of cover, UTC", (v) => { bs.end = v; fire(true); });
+  const thr = tok({ class: "tok n trig", inputmode: "decimal", value: bs.thr, "aria-label": `Trigger level${spec.unit === "M" ? ", magnitude" : " in " + spec.unit}` });
+  const radius = tok({ class: "tok n w5", inputmode: "numeric", value: String(bs.radius), "aria-label": "Radius in kilometres" });
+
+  const sentence = h("p", { class: "composer" },
+    "Cover me for ", cov, " GEN against ", peril, " in ", place, " from ", from, " to ", to,
+    ". It pays if ", ui.measure, " ", thr, h("span", { class: "trig", text: unitLabel(spec.unit) }),
+    bs.peril === "QUAKE" ? [" ", ui.tail, " ", radius, " km."] : [" ", ui.tail, "."]);
+
+  const tune = h("details", { class: "tune" });
+  const validate = () => {
+    const probs = { place: placeProblem(), window: windowProblem(), thr: thresholdProblem(), coverage: coverageProblem() };
+    cov.setAttribute("aria-invalid", probs.coverage ? "true" : "false");
+    thr.setAttribute("aria-invalid", probs.thr ? "true" : "false");
+    from._invalid(!!probs.window);
+    to._invalid(!!probs.window);
+    place.setAttribute("aria-invalid", probs.place ? "true" : "false");
+    issues.textContent = probs.place || probs.window || probs.thr || probs.coverage;
+    return probs;
+  };
+  const fire = (termsChanged) => { if (termsChanged) bs.quote = null; onChange(termsChanged, validate()); };
+
+  cov.addEventListener("input", () => { bs.coverage = cov.value.trim(); fire(false); });
+  thr.addEventListener("input", () => { bs.thr = thr.value.trim(); slider.value = String(Number(bs.thr) || 0); fire(true); });
+  radius.addEventListener("input", () => { bs.radius = Number(radius.value) || 0; fire(true); });
+  peril.addEventListener("change", () => {
+    bs.peril = peril.value; bs.thr = String(PERIL_UI[bs.peril].def); bs.quote = null; fitWindow();
+    const fresh = composer(onChange);
+    host.replaceWith(fresh);
+    fresh.querySelector('[data-k="peril"]')?.focus();
+    onChange(true, fresh._validate());
+  });
+  place.addEventListener("change", () => {
+    const i = Number(place.value);
+    bs.city = i;
+    if (i >= 0) { bs.lat = CITIES[i][1]; bs.lon = CITIES[i][2]; bs.label = CITIES[i][0]; latIn.value = bs.lat; lonIn.value = bs.lon; labIn.value = bs.label; }
+    else { tune.open = true; setTimeout(() => labIn.focus(), 30); }
+    fire(true);
+  });
+
+  const slider = h("input", { type: "range", id: "thrRange", min: String(spec.threshold_min_t / 10), max: String(spec.threshold_max_t / 10), step: spec.unit === "M" ? "0.1" : "0.5", value: String(Number(bs.thr) || 0) });
+  slider.addEventListener("input", () => { bs.thr = Number(slider.value).toFixed(1).replace(/\.0$/, ""); thr.value = bs.thr; fire(true); });
+  const mkField = (id, label, key, props, help) => {
+    const inp = h("input", { class: "input", id, value: bs[key], autocomplete: "off", spellcheck: "false", ...props });
+    inp.addEventListener("input", () => {
+      bs[key] = inp.value.trim();
+      if (bs.city !== -1) { bs.city = -1; place.value = "-1"; }
+      place.options[place.options.length - 1].text = bs.label || "your place";
+      fire(true);
+    });
+    return [inp, h("div", { class: "field" }, h("label", { for: id }, label, h("span", { class: "req", "aria-hidden": "true", text: "*" })), inp, help ? h("p", { class: "help", text: help }) : null)];
+  };
+  const [labIn, labField] = mkField("labIn", "Place name", "label", { maxlength: "60", placeholder: "For example: Farm near Shiraz" }, "Shown on the policy. Up to 60 characters.");
+  const [latIn, latField] = mkField("latIn", "Latitude", "lat", { inputmode: "decimal", placeholder: "25.2048" });
+  const [lonIn, lonField] = mkField("lonIn", "Longitude", "lon", { inputmode: "decimal", placeholder: "55.2708" });
+  const presets = isSandbox()
+    ? [["Recent past, settles now", -20, 7], ["Next week", 3, 7], ["In two weeks", 12, 5]]
+    : [["Next week", 4, 7], ["In two weeks", 12, 7], ["In a month", 30, 5]];
+  put(tune, h("summary", { text: "Adjust details" }),
+    h("div", { class: "tune-body stack" },
+      h("div", {}, h("span", { class: "label", text: "Quick dates" }),
+        h("div", { class: "seg" }, presets.map(([text, off, len]) => h("button", { class: "chip", type: "button", text, onclick: () => {
+          bs.start = addDays(todayIso(), off); bs.end = addDays(bs.start, Math.min(Math.max(len, spec.min_days), spec.max_days) - 1);
+          from._set(bs.start); to._set(bs.end); fire(true);
+        } }))),
+        h("p", { class: "help", text: state.cfg.allow_backdated ? "Sandbox contract: past dates are allowed, so recorded weather settles the policy straight away." : `Cover starts at least ${state.cfg.min_lead_seconds / 86400} days after purchase. All dates are UTC.` })),
+      h("div", { class: "field" }, h("label", { for: "thrRange", text: `Trigger level, from ${tenths(spec.threshold_min_t)} to ${tenths(spec.threshold_max_t)}${unitLabel(spec.unit)}` }), slider),
+      labField, h("div", { class: "grid2" }, latField, lonField),
+      h("p", { class: "help", text: `Data source: ${spec.source}. ${spec.title} cover lasts ${spec.min_days} to ${spec.max_days} days.` })));
+
+  const host = h("div", {}, sentence, issues, tune);
+  host._validate = validate;
+  validate();
+  return host;
+}
+
+/* =====================================================================
+   HOME
+   ===================================================================== */
+const EVENT_TEXT = {
+  bought: (p) => [`${p.label}: ${perilTitle(p.peril).toLowerCase()} cover bought`, `${genStr(p.coverage, 2)} GEN reserved, trigger ${(p.cmp === "LTE" ? "\u2264 " : "\u2265 ") + tenths(p.threshold_t) + unitLabel(p.unit)}`],
+  PAID: (p) => [`${p.label}: paid out ${genStr(p.payout, 2)} GEN`, `Measured ${tenths(p.observed_t)}${unitLabel(p.unit)}, the trigger was met`],
+  EXPIRED: (p) => [`${p.label}: expired, no payout`, `Measured ${tenths(p.observed_t)}${unitLabel(p.unit)}; the pool kept ${genStr(p.premium, 2)} GEN`],
+  VOID: (p) => [`${p.label}: voided and refunded`, `Data could not be confirmed; ${genStr(p.premium, 2)} GEN returned`],
+  CANCELLED: (p) => [`${p.label}: cancelled by the holder`, "Cancelled before cover started"],
+};
+const EVENT_ICON = { bought: ["shield", "bought"], PAID: ["coin", "paid"], EXPIRED: ["check", ""], VOID: ["back", "void"], CANCELLED: ["x", ""] };
+function activityFrom(items) {
+  const ev = [];
+  for (const p of items) {
+    ev.push({ kind: "bought", at: Number(p.created_epoch || 0), p });
+    if (p.status !== "ACTIVE") ev.push({ kind: p.status, at: Number(p.resolved_epoch || p.created_epoch || 0), p });
+  }
+  return ev.sort((x, y) => y.at - x.at).slice(0, 6);
+}
+async function viewHome(root) {
+  if (gate(root)) return;
+  initBuyDefaults();
+  const live = h("span", { class: "live" }, h("i", { "aria-hidden": "true" }), h("span", { text: "Reading the contract\u2026" }));
+  const stats = h("dl", { class: "herostats", "aria-busy": "true" }, Array.from({ length: 4 }, () => h("div", {}, h("div", { class: "skel", style: "height:44px" }))));
+  const feedList = h("ol", { "aria-live": "polite" }, Array.from({ length: 4 }, () => h("li", {}, h("div", { class: "skel", style: "height:44px;margin:6px 0" }))));
+  const feedFoot = h("div", { class: "feed-foot" }, h("div", { class: "skel", style: "height:36px;grid-column:1/-1" }));
+  const go = h("a", { class: "btn btn-primary", href: "#/buy" }, "Price this cover", icon("arrow", 18));
+  const onChange = (_, probs) => go.setAttribute("aria-disabled", termsProblem(probs) ? "true" : "false");
+  const comp = composer(onChange);
+  onChange(false, comp._validate());
+  const listBox = h("div", {}, skel(64, 3));
+  const role = (cls, kind, k, t, d, href) => h("a", { class: "role " + cls, href }, illustration(kind),
+    h("span", {}, h("span", { class: "k", text: k }), h("span", { class: "t", text: t }), h("span", { class: "d", text: d })),
+    h("span", { class: "go", "aria-hidden": "true" }, icon("arrow")));
+  put(root,
+    h("section", { class: "hero", "aria-labelledby": "heroTitle" },
+      h("div", { class: "hero-grid" },
+        h("div", {},
+          live,
+          h("h1", { class: "display", id: "heroTitle", text: "Cover that pays itself when the weather turns." }),
+          h("p", { class: "lede", text: "Write the trigger in one sentence. Validators price it from ten years of real records, the pool locks the payout, and if it happens you are paid. No claim, no adjuster." }),
+          h("div", { class: "actions" }, h("a", { class: "btn btn-primary", href: "#/buy" }, "Get covered", icon("arrow", 18)), h("a", { class: "btn btn-secondary", href: "#/pool", text: "Earn from premiums" })),
+          stats),
+        h("section", { class: "feed", "aria-labelledby": "feedTitle" },
+          h("div", { class: "feed-head" }, h("h2", { id: "feedTitle", text: "Live contract activity" }), h("span", { class: "src", text: "On-chain" })),
+          feedList, feedFoot))),
+    h("section", { class: "section", "aria-labelledby": "rolesTitle" },
+      h("h2", { id: "rolesTitle", text: "Start where you are" }),
+      h("div", { class: "roles" },
+        role("", "cover", "I need", "Cover", "Protect a harvest, an event or a trip against heat, rain, frost, wind or a quake.", "#/buy"),
+        role("earn", "earn", "I want to", "Earn", "Back the pool with GEN and collect premiums, with hard caps on every risk.", "#/pool"),
+        role("look", "look", "I am just", "Exploring", isSandbox() ? "Run three guided scenarios and watch a policy pay, expire and refund." : "See every policy, its trigger and how it settled.", isSandbox() ? "#/lab" : "#/policies"))),
+    h("section", { class: "section", "aria-labelledby": "writeTitle" },
+      h("h2", { id: "writeTitle", text: "Write your cover" }),
+      h("div", { class: "panel" }, h("div", { class: "composer-head" }, h("span", { text: "Tap any highlighted part to change it" })), comp,
+        h("div", { class: "actions", style: "margin-top:20px;max-width:460px" }, go, h("a", { class: "btn btn-secondary", href: "#/policies", text: "See existing policies" })))),
+    h("section", { class: "section", "aria-labelledby": "howTitle" },
+      h("h2", { id: "howTitle", text: "What happens after you buy" }),
+      h("div", { class: "panel" }, h("ol", { class: "steps" },
+        [["Priced from history", "Validators read about ten years of public records and count how often your trigger would have fired."],
+         ["Collateral locked", "The pool reserves your full payout the moment you buy, so it cannot go missing."],
+         ["Checked after the window", "Anyone can start the check. Validators fetch the real data and a reviewer confirms it is genuine."],
+         ["Paid or released", "If the trigger happened, the payout is credited to you. If not, the pool keeps the premium."]]
+          .map(([t, d], i) => h("li", {}, h("span", { class: "n", text: String(i + 1) }), h("div", {}, h("h3", { text: t }), h("p", { class: "muted small", style: "margin-top:2px", text: d }))))))),
+    h("section", { class: "section", "aria-labelledby": "latestTitle" },
+      h("div", { class: "sechead" }, h("h2", { id: "latestTitle", style: "font-size:var(--t-xl)", text: "Latest policies" }), h("a", { href: "#/policies", class: "btn btn-quiet sm", text: "All policies" })),
+      listBox));
+
+  let pool = null, statsData = null, acct = null, list = null;
+  try { [pool, statsData, acct, list] = await Promise.all([readJson("get_pool"), readJson("get_stats"), readJson("get_accounting"), readJson("list_policies", [0, 20])]); }
+  catch (e) {
+    put(live, h("span", { text: "The contract could not be read right now." }));
+    put(stats, h("div", { style: "grid-column:1/-1" }, h("p", { class: "muted small", text: explain(e) }), h("button", { class: "btn btn-secondary sm", type: "button", style: "margin-top:8px", text: "Try again", onclick: () => viewHome(root) })));
+    put(feedList, h("li", {}, h("p", { class: "muted small", style: "padding:12px 0", text: "Activity is unavailable until the contract can be read." })));
+    clear(feedFoot); put(listBox, h("p", { class: "muted small", text: explain(e) }));
+    return;
+  }
+  put(live, h("i", { "aria-hidden": "true" }), h("span", {}, h("b", { text: String(statsData.active) }), statsData.active === 1 ? " policy covered right now" : " policies covered right now"));
+  stats.removeAttribute("aria-busy");
+  put(stats,
+    h("div", {}, h("dt", { text: "Pool capital" }), h("dd", {}, genStr(pool.capital, 2), h("small", { text: "GEN" })), h("span", { class: "sub", text: genStr(pool.free_capital, 2) + " GEN free" })),
+    h("div", {}, h("dt", { text: "Reserved" }), h("dd", { text: pct(pool.utilization_bps) }), h("span", { class: "sub", text: "limit " + pct(pool.max_utilization_bps) })),
+    h("div", {}, h("dt", { text: "Policies" }), h("dd", { text: String(statsData.policies) }), h("span", { class: "sub", text: `${statsData.paid} paid, ${statsData.expired} expired` })),
+    h("div", {}, h("dt", { text: "Paid out" }), h("dd", {}, genStr(pool.payouts_total, 2), h("small", { text: "GEN" })), h("span", { class: "sub", text: "to policyholders" })));
+  const events = activityFrom(list.items);
+  if (!events.length) put(feedList, h("li", {}, h("div", { class: "empty", style: "padding:24px 8px" }, h("h3", { text: "No activity yet" }), h("p", { class: "small", text: "The first policy bought on this contract appears here." }))));
+  else put(feedList, events.map((ev) => {
+    const [title, sub] = EVENT_TEXT[ev.kind](ev.p);
+    const [ic, tone] = EVENT_ICON[ev.kind];
+    return h("li", {}, h("a", { href: "#/policy/" + ev.p.id },
+      h("span", { class: "ev-i " + tone, "aria-hidden": "true" }, icon(ic, 16)),
+      h("span", { style: "min-width:0" }, h("span", { class: "ev-t", text: title }), h("span", { class: "ev-s", text: `${ev.p.id}, ${sub}` })),
+      h("span", { class: "ev-a", text: timeAgo(ev.at) })));
+  }));
+  const balanced = !!acct.balance_covers_liabilities && !!acct.reserved_within_capital;
+  put(feedFoot,
+    h("div", {}, h("b", { class: "num", text: genStr(acct.reserved, 2) + " GEN" }), h("span", { text: "locked for payouts" })),
+    h("div", {}, h("b", { class: "num", text: genStr(acct.owed_total, 2) + " GEN" }), h("span", { text: "claimable by users" })),
+    h("div", { class: "bal" + (balanced ? "" : " off") }, h("b", {}, icon(balanced ? "check" : "x", 18), balanced ? "Balanced" : "Check"), h("span", { text: balanced ? "Contract balance equals pool capital plus claims" : "Liabilities exceed the contract balance" })));
+  if (!list.items.length) put(listBox, h("div", { class: "panel empty" }, h("h3", { text: "No policies yet" }), h("p", { text: "The first policy written on this contract will appear here." }), h("a", { class: "btn btn-primary", href: "#/buy", text: "Write the first policy" })));
+  else put(listBox, policyCollection(list.items.slice(0, 5)));
+}
+
+/* =====================================================================
+   BUY
+   ===================================================================== */
+async function viewBuy(root, params) {
+  if (gate(root)) return;
+  initBuyDefaults(params.get("peril"));
+  const quoteBox = h("div");
+  const quoteTx = txPanel();
+  const priceBtn = h("button", { class: "btn btn-primary block", type: "button", text: "Price this cover" });
+  let previewTimer = null, previewSeq = 0, quoteSeq = 0;
+  const onChange = (termsChanged, p) => {
+    priceBtn.disabled = !!termsProblem(p) || salesPaused();
+    if (termsChanged) { quoteTx.reset(); drawQuote(); } else schedulePreview();
+  };
+  const comp = composer(onChange);
+  priceBtn.disabled = !!termsProblem(comp._validate()) || salesPaused();
+  priceBtn.addEventListener("click", () => runButton(priceBtn, async () => {
+    const q = await write(quoteTx, "the price request", "request_quote", [bs.peril, bs.label, bs.lat, bs.lon, bs.start, bs.end, String(bs.thr), bs.peril === "QUAKE" ? bs.radius : 0]);
+    if (q && q.id) { bs.quote = q; await drawQuote(); }
+  }));
+
+  const premiumOut = h("div", { "aria-live": "polite" });
+  const buyTx = txPanel();
+  const buyBtn = h("button", { class: "btn btn-primary block", type: "button", text: "Buy cover" });
+  let preview = null;
+  async function refreshPreview() {
+    const seq = ++previewSeq;
+    const q = bs.quote; if (!q) return;
+    const cp = coverageProblem();
+    if (cp) { preview = null; buyBtn.disabled = true; buyBtn.textContent = "Buy cover"; put(premiumOut, h("p", { class: "err", text: cp })); return; }
+    put(premiumOut, h("div", { class: "skel", style: "height:64px" }));
+    try {
+      const pv = await readJson("preview_premium", [q.id, Number(bs.coverage)]);
+      if (seq !== previewSeq) return;
+      preview = pv;
+      const prem = BigInt(pv.premium_wei), covWei = BigInt(pv.coverage_wei);
+      const surcharge = Number(pv.surcharge_bps) > 10000 ? `, plus ${(Number(pv.surcharge_bps) - 10000) / 100}% while the pool is busy` : "";
+      put(premiumOut,
+        h("p", { class: "price num" }, genStr(prem), h("small", { text: "GEN premium" })),
+        h("p", { class: "muted small", style: "margin-top:4px", text: `${(Number(prem * 10000n / covWei) / 100).toFixed(2)}% of ${bs.coverage} GEN of cover: the historical chance plus a 30% margin${surcharge}.` }));
+      buyBtn.disabled = !pv.fits || salesPaused();
+      buyBtn.textContent = pv.fits ? `Buy ${bs.coverage} GEN of cover` : "Over the pool's capacity";
+    } catch (e) { if (seq === previewSeq) { put(premiumOut, h("p", { class: "err", text: "The premium could not be loaded. " + explain(e) })); buyBtn.disabled = true; } }
+  }
+  function schedulePreview() { clearTimeout(previewTimer); previewTimer = setTimeout(refreshPreview, 220); }
+  buyBtn.addEventListener("click", () => runButton(buyBtn, async () => {
+    const q = bs.quote;
+    if (!preview || !q || !needClient()) return;
+    const value = BigInt(preview.premium_wei) * 102n / 100n;
+    const ok = await confirmAction({
+      title: "Buy this cover?",
+      intro: `Pays ${bs.coverage} GEN if ${ruleText(q)} in ${q.label} between ${fmtDay(q.start_date)} and ${fmtDay(q.end_date)}, UTC.`,
+      rows: [["Cover", bs.coverage + " GEN"], ["Premium", genStr(preview.premium_wei) + " GEN"], ["Sent with the transaction", genStr(value) + " GEN"], ["Quote", q.id]],
+      note: "2% extra is sent in case the price moves before your transaction runs. Anything not needed is credited back to your balance.",
+      confirm: "Buy cover" });
+    if (!ok) return;
+    const res = await write(buyTx, "your purchase", "buy_policy", [q.id, Number(bs.coverage)], value);
+    if (res && res.policy_id) {
+      toast(`Policy ${res.policy_id} is active`);
+      bs.quote = null;
+      put(quoteBox, h("section", { class: "panel stack", "aria-labelledby": "doneT" },
+        h("div", { class: "callout ok" }, h("h2", { id: "doneT", text: "You are covered" }),
+          h("p", { class: "small", style: "margin-top:4px", text: `Policy ${res.policy_id} reserves ${bs.coverage} GEN for you. Premium paid: ${genStr(res.premium_wei)} GEN.` }),
+          BigInt(res.refunded_wei || "0") > 0n ? h("p", { class: "small", style: "margin-top:4px", text: `The unused ${genStr(res.refunded_wei)} GEN was credited to your balance on the Pool page.` }) : null),
+        buyTx.el,
+        h("a", { class: "btn btn-primary block", href: "#/policy/" + res.policy_id, text: "Open the policy" }),
+        h("button", { class: "btn btn-secondary block", type: "button", text: "Write another policy", onclick: () => drawQuote() })));
+    }
+  }));
+
+  async function drawQuote() {
+    const seq = ++quoteSeq;
+    const q = bs.quote;
+    if (!q) {
+      put(quoteBox, h("section", { class: "panel stack", "aria-labelledby": "priceT" },
+        h("h2", { id: "priceT", text: "Price" }),
+        salesPaused() ? h("p", { class: "callout warn small", text: "New cover is paused on this contract. Pricing and buying are unavailable until the owner resumes sales." }) : null,
+        h("p", { class: "muted small", text: "Pricing is a transaction: validators read about ten years of records for this place and agree on how often the trigger would have fired. It sends no GEN and takes about a minute." }),
+        priceBtn, quoteTx.el));
+      return;
+    }
+    put(quoteBox, h("div", { class: "panel" }, skel(160)));
+    const cap = await readJson("get_capacity", [q.peril, (Number(q.lat_e4) / 10000).toFixed(4), (Number(q.lon_e4) / 10000).toFixed(4)]).catch(() => null);
+    if (seq !== quoteSeq) return;
+    bs.capacity = cap ? Number(cap.max_coverage_gen) : 0;
+    const hitsOf20 = Math.max(0, Math.min(20, Math.round(Number(q.risk_bps) / 500)));
+    const expiresIn = Number(q.expires_epoch) - nowSec();
+    put(quoteBox, h("section", { class: "panel stack", "aria-labelledby": "yourT" },
+      h("div", { class: "row between" }, h("h2", { id: "yourT", text: "Your price" }), h("span", { class: "xs", text: "Quote " + q.id })),
+      quoteTx.el,
+      h("div", {},
+        h("p", { class: "small", text: q.peril === "QUAKE"
+          ? `Quakes recorded in this radius over ${state.cfg.quake_history_years} years imply about a ${pct(q.risk_bps)} chance for a window this long.`
+          : `This trigger fired in ${q.hits} of ${q.samples} comparable windows over the last ${state.cfg.history_years} years, about ${pct(q.risk_bps)}.` }),
+        h("div", { class: "freq", role: "img", "aria-label": `About ${hitsOf20} in 20 comparable windows triggered` }, Array.from({ length: 20 }, (_, i) => h("i", { class: i < hitsOf20 ? "hit" : null }))),
+        h("p", { class: "xs", text: "Twenty comparable windows. Amber ones triggered." })),
+      premiumOut,
+      h("p", { class: "help", text: bs.capacity > 0 ? `The pool can cover up to ${bs.capacity} GEN for this risk right now. Change the amount in the sentence.` : "The pool has no free capacity for this risk. Liquidity can be added on the Pool page." }),
+      buyBtn, buyTx.el,
+      h("p", { class: "xs", text: expiresIn > 0 ? `This price holds for ${dur(expiresIn)}.` : "This price has expired. Price the cover again." })));
+    if (expiresIn <= 0) { buyBtn.disabled = true; return; }
+    await refreshPreview();
+  }
+
+  put(root,
+    h("div", { class: "pagehead" }, h("div", {}, h("h1", { text: "Write your cover" }),
+      h("p", { text: "Tap any highlighted part to change it. The sentence is exactly what the contract will check." }))),
+    h("div", { class: "cols" },
+      h("section", { class: "panel", "aria-label": "Policy terms" }, comp),
+      h("div", { class: "sticky" }, quoteBox)));
+  await drawQuote();
+}
+
+/* =====================================================================
+   POOL
+   ===================================================================== */
+async function viewPool(root) {
+  if (gate(root)) return;
+  if (!root.querySelector(".kpis")) put(root, h("div", { class: "pagehead" }, h("h1", { text: "Liquidity pool" })), skel(96), skel(240));
+  let pool, exposure, lp = null, pending = "0";
+  try {
+    [pool, exposure] = await Promise.all([readJson("get_pool"), readJson("get_exposure")]);
+    if (account) { [lp, pending] = await Promise.all([readJson("get_lp", [account]), read("get_pending_withdrawal", [account])]); }
+  } catch (e) {
+    put(root, h("div", { class: "panel stack", role: "alert" }, h("h1", { text: "The pool could not be loaded" }), h("p", { class: "muted", text: explain(e) }),
+      h("button", { class: "btn btn-primary", type: "button", text: "Try again", onclick: () => viewPool(root) })));
+    return;
+  }
+  const cfg = state.cfg;
+  const refresh = () => setTimeout(() => viewPool(root), 1200);
+  const free = BigInt(pool.free_capital);
+  const util = Number(pool.utilization_bps), maxUtil = Number(pool.max_utilization_bps);
+
+  const exposureRows = exposure.map((e) => {
+    const cap = BigInt(e.cap) || 1n, used = BigInt(e.reserved);
+    const fill = Number(used * 10000n / cap) / 100;
+    return h("li", { style: "padding:12px 0;border-top:1px solid var(--rule)" },
+      h("div", { class: "row between", style: "gap:8px" }, h("span", { class: "row", style: "gap:10px;font-weight:600;min-width:0" }, glyph(e.peril), perilTitle(e.peril)),
+        h("span", { class: "small num muted", style: "text-align:right", text: `${genStr(used, 2)} of ${genStr(cap, 2)} GEN` })),
+      h("div", { class: "meter" + (fill > 85 ? " hot" : ""), style: "margin-top:8px", role: "meter", "aria-label": perilTitle(e.peril) + " exposure, percent of its limit", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": fill.toFixed(0) }, h("i", { style: `width:${Math.min(100, fill)}%` })));
+  });
+
+  const depTx = txPanel();
+  const depIn = h("input", { class: "input", id: "depIn", inputmode: "decimal", value: "100", placeholder: "Amount in GEN", "aria-describedby": "depHelp" });
+  const depHelp = h("p", { class: "help", id: "depHelp", "aria-live": "polite" });
+  const depBtn = h("button", { class: "btn btn-primary block", type: "button", style: "margin-top:12px", text: "Provide liquidity" });
+  const showDep = async () => {
+    const w = genToWei(depIn.value);
+    if (w === null || w <= 0n) { depIn.setAttribute("aria-invalid", "true"); depHelp.className = "err"; depHelp.textContent = "Enter an amount of GEN, for example 100."; depBtn.disabled = true; return; }
+    depIn.setAttribute("aria-invalid", "false"); depHelp.className = "help"; depBtn.disabled = false;
+    try {
+      const p = await readJson("preview_deposit", [w]);
+      depHelp.textContent = p.valid ? `You would receive about ${genStr(p.shares_minted, 2)} shares at ${genStr(pool.share_price_e18, 4)} GEN each.` : `The minimum deposit is ${genStr(cfg.min_deposit_wei)} GEN.`;
+      if (!p.valid) { depHelp.className = "err"; depBtn.disabled = true; }
+    } catch (e) { depHelp.textContent = ""; }
+  };
+  depIn.addEventListener("input", showDep);
+  depBtn.addEventListener("click", () => runButton(depBtn, async () => {
+    const w = genToWei(depIn.value);
+    if (w === null || w <= 0n || !needClient()) return;
+    const ok = await confirmAction({ title: "Provide liquidity?", intro: `${genStr(w)} GEN will back policies until you exit. You share premiums and payouts in proportion to your shares.`,
+      note: `Exits need ${cfg.withdraw_notice_seconds ? dur(cfg.withdraw_notice_seconds) + " notice" : "no notice on this sandbox"}, and only capital not reserved for active policies can leave.`, confirm: "Provide liquidity" });
+    if (!ok) return;
+    if (await write(depTx, "your deposit", "provide_liquidity", [], w)) { toast("Liquidity added"); refresh(); }
+  }));
+
+  const exitTx = txPanel();
+  const myShares = lp ? BigInt(lp.shares) : 0n;
+  const req = lp?.withdraw_request;
+  const readyIn = req ? Number(req.ready_at) - nowSec() : 0;
+  const expired = req ? nowSec() > Number(req.ready_at) + Number(cfg.withdraw_window_seconds || 0) : false;
+  let exitPreview = null;
+  if (req && !expired) { try { exitPreview = await readJson("preview_withdrawal", [BigInt(req.shares), Math.max(nowSec(), Number(req.ready_at))]); } catch (e) {} }
+  let positionBody;
+  if (!account) positionBody = connectPrompt("Connect a wallet to see your shares, request an exit and withdraw your balance.");
+  else if (myShares === 0n && !req) positionBody = h("p", { class: "muted small", text: "You hold no shares in this pool yet. Provide liquidity to start earning premiums." });
+  else {
+    const exitControls = req
+      ? h("div", { class: "inset stack" },
+          h("div", { class: "row between wrap" }, h("b", { text: `Exit requested: ${genStr(req.shares, 2)} shares` }),
+            h("span", { class: "badge " + (expired ? "VOID" : readyIn > 0 ? "ACTIVE" : "PAID"), text: expired ? "Expired" : readyIn > 0 ? "In notice" : "Ready" })),
+          h("p", { class: "small muted", text: expired ? "The completion window has passed. Cancel this request and make a new one."
+            : readyIn > 0 ? `Ready in ${dur(readyIn)}, then open for ${dur(cfg.withdraw_window_seconds)}. Your shares stay at risk until you complete the exit.`
+            : `Complete it within ${dur(Number(req.ready_at) + Number(cfg.withdraw_window_seconds) - nowSec())}.` }),
+          exitPreview ? h("dl", { class: "dl" },
+            h("dt", { text: "Estimated payout" }), h("dd", { class: "num", text: genStr(exitPreview.amount_wei) + " GEN" }),
+            BigInt(exitPreview.held_back_wei) > 0n ? [h("dt", { text: "Held for running policies" }), h("dd", { class: "num", text: genStr(exitPreview.held_back_wei, 2) + " GEN, pool total" })] : null) : null,
+          exitPreview && BigInt(exitPreview.held_back_wei) > 0n ? h("p", { class: "xs", text: "Collateral for policies whose window has started stays in the pool. Exiting now gives up your share of it; waiting until they settle does not." }) : null,
+          exitPreview && !exitPreview.payable_now ? h("p", { class: "err", text: "Not enough free capital right now. Exit fewer shares or wait for policies to settle." }) : null,
+          h("div", { class: "actions" },
+            h("button", { class: "btn btn-primary", type: "button", disabled: readyIn > 0 || expired || (exitPreview && !exitPreview.payable_now), text: "Complete exit", onclick: (ev) => runButton(ev.currentTarget, async () => {
+              if (await write(exitTx, "your exit", "complete_withdrawal", [])) { toast("Exit complete. The GEN is in your balance."); refresh(); }
+            }) }),
+            h("button", { class: "btn btn-secondary", type: "button", text: "Cancel request", onclick: (ev) => runButton(ev.currentTarget, async () => {
+              if (await write(exitTx, "the cancellation", "cancel_withdrawal", [])) { toast("Exit request cancelled"); refresh(); }
+            }) })))
+      : h("div", { class: "stack" },
+          h("p", { class: "small muted", text: `Exiting has two steps: request, wait ${cfg.withdraw_notice_seconds ? dur(cfg.withdraw_notice_seconds) : "no time on this sandbox"}, then complete within ${dur(cfg.withdraw_window_seconds)}. Free capital now: ${genStr(free, 2)} GEN.` }),
+          h("div", { class: "seg", role: "group", "aria-label": "Request an exit" }, [25, 50, 100].map((p) => h("button", { class: "chip", type: "button", text: `Exit ${p}%`, onclick: (ev) => runButton(ev.currentTarget, async () => {
+            const shares = myShares * BigInt(p) / 100n;
+            const ok = await confirmAction({ title: `Request a ${p}% exit?`, intro: `This asks to withdraw ${genStr(shares, 2)} of your ${genStr(myShares, 2)} shares.`,
+              note: "A new request replaces any earlier one. Your shares keep earning and keep carrying risk until you complete the exit.", confirm: "Request exit" });
+            if (!ok) return;
+            if (await write(exitTx, "your exit request", "request_withdrawal", [shares])) { toast("Exit requested"); refresh(); }
+          }) }))));
+    positionBody = h("div", { class: "stack" },
+      h("dl", { class: "dl" },
+        h("dt", { text: "Shares" }), h("dd", { class: "num", text: genStr(lp.shares, 2) }),
+        h("dt", { text: "Value now" }), h("dd", { class: "num", text: genStr(lp.value_wei, 4) + " GEN" }),
+        h("dt", { text: "Share of the pool" }), h("dd", { class: "num", text: pct(lp.pool_share_bps) })),
+      exitControls, exitTx.el);
+  }
+
+  const balTx = txPanel();
+  const owed = BigInt(pending || "0");
+  const balBody = !account ? h("p", { class: "muted small", text: "Connect a wallet to see your balance." }) : h("div", { class: "stack" },
+    h("div", { class: "row between" }, h("span", { class: "muted small", text: "Ready to withdraw" }), h("b", { class: "num", style: "font-size:22px", text: genStr(owed) + " GEN" })),
+    h("button", { class: "btn btn-primary block", type: "button", disabled: owed === 0n, text: owed === 0n ? "Nothing to withdraw" : `Withdraw ${genStr(owed)} GEN`, onclick: (ev) => runButton(ev.currentTarget, async () => {
+      if (await write(balTx, "your withdrawal", "withdraw", [])) { toast("Withdrawn to your wallet"); refresh(); }
+    }) }), balTx.el);
+
+  put(root,
+    h("div", { class: "pagehead" }, h("div", {}, h("h1", { text: "Liquidity pool" }),
+      h("p", { text: "Providers put up the GEN that guarantees every payout and earn the premiums. Gains and losses are shared in proportion to shares." }))),
+    h("dl", { class: "kpis" },
+      h("div", { class: "kpi" }, h("dt", { text: "Capital" }), h("dd", {}, genStr(pool.capital, 2), h("small", { text: "GEN" }))),
+      h("div", { class: "kpi" }, h("dt", { text: "Free for new cover" }), h("dd", {}, genStr(pool.free_capital, 2), h("small", { text: "GEN" }))),
+      h("div", { class: "kpi" }, h("dt", { text: "Price per share" }), h("dd", {}, genStr(pool.share_price_e18, 4), h("small", { text: "GEN" }))),
+      h("div", { class: "kpi" }, h("dt", { text: "Premiums earned" }), h("dd", {}, genStr(pool.premiums_total, 2), h("small", { text: "GEN" })))),
+    h("div", { class: "cols act-first", style: "margin-top:24px" },
+      h("div", { class: "stack-lg" },
+        h("section", { class: "panel", "aria-labelledby": "utilT" },
+          h("div", { class: "panel-head" }, h("h2", { id: "utilT", text: "Reserved for payouts" }), h("b", { class: "num", text: pct(util) })),
+          h("div", { class: "meter" + (util > maxUtil * 0.85 ? " hot" : ""), role: "meter", "aria-label": "Share of capital reserved for payouts", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": (util / 100).toFixed(0) },
+            h("i", { style: `width:${Math.min(100, util / 100)}%` }), h("span", { class: "limit", style: `left:${maxUtil / 100}%` })),
+          h("p", { class: "xs", style: "margin-top:10px", text: `The marker is the ${pct(maxUtil)} limit. New cover is refused before reserves pass it.` })),
+        h("section", { class: "panel", "aria-labelledby": "expT" },
+          h("h2", { id: "expT", text: "Exposure by risk" }),
+          h("p", { class: "muted small", text: `Limits: one policy up to ${pct(cfg.max_policy_share_bps)} of capital, one kind of risk up to ${pct(cfg.max_peril_share_bps)}, one map area of about 100 km up to ${pct(cfg.max_region_share_bps)}.` }),
+          h("ul", { style: "list-style:none;margin:12px 0 0;padding:0" }, exposureRows))),
+      h("div", { class: "stack-lg sticky" },
+        h("section", { class: "panel", "aria-labelledby": "depT" },
+          h("h2", { id: "depT", text: "Provide liquidity" }),
+          h("div", { class: "field", style: "margin-top:12px" }, h("label", { for: "depIn" }, "Amount in GEN", h("span", { class: "req", "aria-hidden": "true", text: "*" })), depIn, depHelp),
+          depBtn, depTx.el),
+        h("section", { class: "panel", "aria-labelledby": "posT" }, h("h2", { id: "posT", text: "Your position" }), h("div", { style: "margin-top:12px" }, positionBody)),
+        h("section", { class: "panel", "aria-labelledby": "balT" },
+          h("h2", { id: "balT", text: "Your balance" }),
+          h("p", { class: "muted small", style: "margin:4px 0 12px", text: "Payouts, refunds and exits are credited here first." }), balBody),
+        isSandbox() ? fundCard() : null)));
+  showDep();
+}
+function fundCard(note) {
+  const out = h("p", { class: "small", role: "status", "aria-live": "polite", style: "margin-top:8px" });
+  return h("section", { class: "panel", "aria-labelledby": "fundT" },
+    h("h2", { id: "fundT", text: "Test GEN" }),
+    h("p", { class: "muted small", style: "margin:4px 0 12px", text: note || "The Studio simulator can credit test GEN to your connected account. This only works on Studio." }),
+    h("button", { class: "btn btn-secondary block", type: "button", text: "Request 100 test GEN", onclick: (ev) => runButton(ev.currentTarget, async () => {
+      if (!needClient()) return;
+      if (!RPC_URL) { out.className = "err"; out.textContent = "No Studio RPC address is configured."; return; }
+      try {
+        out.className = "small muted"; out.textContent = "Requesting…";
+        const before = await balanceOf(account);
+        const res = await fetch(RPC_URL, { method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "sim_fundAccount", params: [account, Number(100n * WEI)] }) });
+        const body = await res.json();
+        if (body.error) { out.className = "err"; out.textContent = "Studio refused the request: " + (body.error.message || JSON.stringify(body.error)); return; }
+        out.textContent = "Requested. Waiting for the balance to update…";
+        for (let i = 0; i < 8; i++) {
+          await new Promise((r) => setTimeout(r, 1500));
+          const after = await balanceOf(account);
+          if (after !== null && before !== null && after > before) { out.className = "small"; out.textContent = `Balance is now ${genStr(after, 2)} GEN.`; return; }
+        }
+        out.textContent = "Requested. The balance has not updated yet; check again in a moment.";
+      } catch (e) { out.className = "err"; out.textContent = explain(e); }
+    }) }), out);
+}
+
+/* =====================================================================
+   POLICIES
+   ===================================================================== */
+const pf = { filter: "all", q: "", items: [], total: 0, offset: 0 };
+async function viewPolicies(root) {
+  if (gate(root)) return;
+  const listBox = h("div", { "aria-live": "polite" });
+  const more = h("button", { class: "btn btn-secondary block", type: "button", style: "margin-top:12px", text: "Load more", hidden: true });
+  const search = h("input", { class: "input", id: "pSearch", type: "search", placeholder: "Search by policy, place or risk", value: pf.q });
+  search.addEventListener("input", () => { pf.q = search.value.trim().toLowerCase(); draw(); });
+  const chips = h("div", { class: "seg", role: "group", "aria-label": "Filter by status" });
+  const FILTERS = [["all", "All"], ["mine", "Mine"], ["ACTIVE", "Active"], ["PAID", "Paid out"], ["EXPIRED", "Expired"], ["VOID", "Voided"]];
+  function draw() {
+    put(chips, FILTERS.map(([k, t]) => h("button", { class: "chip", type: "button", "aria-pressed": pf.filter === k ? "true" : "false", text: t, onclick: () => { pf.filter = k; load(true); } })));
+    const shown = pf.items.filter((p) => (pf.filter === "all" || pf.filter === "mine" || p.status === pf.filter) &&
+      (!pf.q || `${p.id} ${p.label} ${p.peril} ${perilTitle(p.peril)} ${STATUS[p.status]}`.toLowerCase().includes(pf.q)));
+    if (pf.filter === "mine" && !account) put(listBox, h("div", { class: "panel" }, connectPrompt("Connect a wallet to see the policies you hold.")));
+    else if (!shown.length) put(listBox, h("div", { class: "panel empty" },
+      h("h3", { text: pf.items.length ? "Nothing matches" : pf.filter === "mine" ? "You hold no policies yet" : "No policies yet" }),
+      h("p", { text: pf.items.length ? "Try another filter or a different search." : "Policies appear here as soon as they are bought." }),
+      pf.items.length ? null : h("a", { class: "btn btn-primary", href: "#/buy", text: "Write a policy" })));
+    else put(listBox, policyCollection(shown));
+    more.hidden = pf.filter !== "all" || pf.items.length >= pf.total;
+  }
+  async function load(reset) {
+    if (reset) { pf.items = []; pf.offset = 0; put(listBox, skel(64, 3)); draw.pending = true; }
+    try {
+      if (pf.filter === "mine") {
+        if (account) { const r = await readJson("get_holder_policies", [account]); pf.items = r.items; pf.total = r.total; } else { pf.items = []; pf.total = 0; }
+      } else {
+        const statusFilter = pf.filter !== "all";
+        let pages = 0;
+        do {
+          const r = await readJson("list_policies", [pf.offset, statusFilter ? 50 : 20]);
+          pf.items = pf.items.concat(r.items); pf.total = r.total; pf.offset = pf.items.length;
+          pages += 1;
+        } while (statusFilter && pf.items.length < pf.total && pages < 20);
+      }
+    } catch (e) {
+      put(listBox, h("div", { class: "panel stack", role: "alert" }, h("p", { text: "Policies could not be loaded. " + explain(e) }),
+        h("button", { class: "btn btn-secondary", type: "button", text: "Try again", onclick: () => load(true) })));
+      return;
+    }
+    draw();
+  }
+  more.addEventListener("click", () => runButton(more, () => load(false)));
+  put(root,
+    h("div", { class: "pagehead" }, h("div", {}, h("h1", { text: "Policies" }), h("p", { text: "Every policy on this contract, its trigger and how it settled." })),
+      h("a", { class: "btn btn-primary", href: "#/buy", text: "New policy" })),
+    h("div", { class: "field" }, h("label", { for: "pSearch", class: "sr", text: "Search policies" }), search),
+    h("div", { style: "margin:12px 0 16px" }, chips),
+    listBox, more);
+  put(chips, FILTERS.map(([k, t]) => h("button", { class: "chip", type: "button", "aria-pressed": pf.filter === k ? "true" : "false", text: t, onclick: () => { pf.filter = k; load(true); } })));
+  await load(true);
+}
+
+/* =====================================================================
+   POLICY DETAIL
+   ===================================================================== */
+async function viewPolicy(root, id) {
+  if (gate(root)) return;
+  const back = h("a", { class: "btn btn-quiet sm", href: "#/policies", style: "margin:-8px 0 8px -10px" }, icon("back", 18), "All policies");
+  put(root, back, skel(140), skel(220));
+  let p, pendingHolder = "0";
+  try { p = await readJson("get_policy", [id]); pendingHolder = await read("get_pending_withdrawal", [p.holder]); }
+  catch (e) {
+    put(root, back, h("div", { class: "panel empty", role: "alert" }, h("h3", { text: `Policy ${id} could not be loaded` }), h("p", { text: explain(e) }), h("a", { class: "btn btn-secondary", href: "#/policies", text: "Back to policies" })));
+    return;
+  }
+  const cfg = state.cfg, spec = perilSpec(p.peril), now = nowSec();
+  const opens = Number(p.end_epoch) + cfg.data_lag_seconds;
+  const voidAt = Math.max(Number(p.end_epoch), Number(p.created_epoch)) + cfg.resolve_timeout_seconds;
+  const cancelBy = Number(p.start_epoch) - cfg.min_lead_seconds;
+  const isHolder = same(account, p.holder);
+  const lte = p.cmp === "LTE";
+  const unit = unitLabel(p.unit);
+  const actTx = txPanel();
+  const refresh = () => setTimeout(() => viewPolicy(root, id), 1200);
+  const head = {
+    ACTIVE: now < Number(p.start_epoch) ? ["Cover starts soon", `Cover runs from ${fmtDay(p.start_date)} to ${fmtDay(p.end_date)}, UTC.`]
+      : now < Number(p.end_epoch) ? ["Cover is running", `The window closes ${fmtEpoch(p.end_epoch)}.`]
+      : now < opens ? ["Waiting for the data to settle", `The data check opens ${fmtEpoch(opens)}.`]
+      : ["Ready for the data check", "Anyone can start the check. Validators fetch the real data and a reviewer confirms it."],
+    PAID: [`Paid out ${genStr(p.payout)} GEN`, "The trigger happened. The payout was credited to the holder."],
+    EXPIRED: ["Expired without a payout", "The trigger did not happen. The pool kept the premium and the collateral was released."],
+    VOID: ["Voided and refunded", "The data could not be confirmed in time, so the full premium was refunded."],
+    CANCELLED: ["Cancelled", "The holder cancelled before cover started and got the premium back, minus the cancellation fee."],
+  }[p.status] || [p.status, ""];
+
+  let observed = null;
+  if (p.observed_t !== null && p.observed_t !== undefined && p.decision) {
+    const ob = Number(p.observed_t), th = Number(p.threshold_t);
+    const lo = Math.min(ob, th), hi = Math.max(ob, th), pad = Math.max((hi - lo) * 0.35, 10);
+    const pos = (v) => Math.max(8, Math.min(92, ((v - (lo - pad)) / (hi - lo + 2 * pad)) * 100));
+    observed = h("section", { class: "panel", "aria-labelledby": "obsT" },
+      h("h2", { id: "obsT", text: "What validators measured" }),
+      h("p", { class: "small muted", style: "margin-top:4px", text: `${p.decision === "TRIGGERED" ? "The trigger was met" : "The trigger was not met"}: measured ${tenths(ob)}${unit} against a trigger of ${lte ? "at most" : "at least"} ${tenths(th)}${unit}.` }),
+      h("div", { class: "scale", "aria-hidden": "true" }, h("div", { class: "track" }),
+        h("span", { class: "pin obs", style: `left:${pos(ob)}%` }, `Measured ${tenths(ob)}${unit}`, h("i")),
+        h("span", { class: "pin thr", style: `left:${pos(th)}%` }, h("i"), `Trigger ${tenths(th)}${unit}`)),
+      p.note ? h("p", { class: "small", style: "margin-top:16px", text: "Reviewer: " + p.note }) : null,
+      p.evidence_url ? h("p", { class: "xs", style: "margin-top:8px;overflow-wrap:anywhere" }, "Source data: ", h("a", { href: p.evidence_url, target: "_blank", rel: "noopener", text: p.evidence_url })) : null,
+      h("p", { class: "xs", style: "margin-top:4px", text: `Checked by ${short(p.resolver)} on ${fmtEpoch(p.resolved_epoch)}.` }));
+  }
+  const tl = [
+    ["Bought", fmtEpoch(p.created_epoch), true],
+    ["Cover window", `${fmtDay(p.start_date)} to ${fmtDay(p.end_date)}, UTC`, now >= Number(p.end_epoch) || p.status !== "ACTIVE"],
+    ["Data check", p.status === "ACTIVE" ? `Opens ${fmtEpoch(opens)}` : p.observed_t !== null && p.observed_t !== undefined ? fmtEpoch(p.resolved_epoch) : "Not needed", p.status !== "ACTIVE"],
+    ["Outcome", p.status === "ACTIVE" ? "Pending" : STATUS[p.status], p.status !== "ACTIVE"],
+  ];
+  const firstOpen = tl.findIndex((t) => !t[2]);
+
+  const actions = [];
+  if (p.status === "ACTIVE") {
+    const can = now >= opens;
+    actions.push(h("button", { class: "btn btn-primary block", type: "button", disabled: !can, text: can ? "Run the data check" : `Data check opens in ${dur(opens - now)}`, onclick: (ev) => runButton(ev.currentTarget, async () => {
+      const r = await write(actTx, "the data check", "resolve_policy", [id]);
+      if (r) { toast("Data check recorded"); refresh(); }
+    }) }));
+    if (!can) actions.push(h("p", { class: "xs", text: "The check needs the window to close and the data to settle. Anyone can start it, including you." }));
+    if (now < cancelBy) {
+      if (isHolder) actions.push(h("button", { class: "btn btn-danger block", type: "button", text: "Cancel policy", onclick: (ev) => runButton(ev.currentTarget, async () => {
+        const fee = BigInt(p.premium) * BigInt(cfg.cancel_fee_bps) / 10000n;
+        const ok = await confirmAction({ title: "Cancel this policy?", intro: "Cover ends now and cannot be restored.", rows: [["Refund", genStr(BigInt(p.premium) - fee) + " GEN"], ["Cancellation fee", genStr(fee) + " GEN"]], confirm: "Cancel policy", danger: true });
+        if (!ok) return;
+        if (await write(actTx, "the cancellation", "cancel_policy", [id])) { toast("Policy cancelled. The refund is in your balance."); refresh(); }
+      }) }));
+      else actions.push(h("p", { class: "xs", text: `Only the holder can cancel, until ${fmtEpoch(cancelBy)}.` }));
+    }
+    if (now >= voidAt) actions.push(h("button", { class: "btn btn-secondary block", type: "button", text: "Void and refund the premium", onclick: (ev) => runButton(ev.currentTarget, async () => {
+      const ok = await confirmAction({ title: "Void this policy?", intro: "Use this when the data cannot be checked. The holder gets the full premium back and the cover ends.", confirm: "Void policy", danger: true });
+      if (!ok) return;
+      if (await write(actTx, "the void", "void_policy", [id])) { toast("Policy voided and refunded"); refresh(); }
+    }) }));
+    else actions.push(h("p", { class: "xs", text: `If the data cannot be checked, anyone can void the policy from ${fmtEpoch(voidAt)} for a full premium refund.` }));
+  }
+  if (BigInt(pendingHolder || "0") > 0n) {
+    actions.push(h("div", { class: "inset stack" }, h("p", { class: "small" }, h("b", { text: `${genStr(pendingHolder)} GEN` }), ` is waiting in ${isHolder ? "your" : "the holder's"} balance.`),
+      isHolder
+        ? h("button", { class: "btn btn-primary block", type: "button", text: "Withdraw to my wallet", onclick: (ev) => runButton(ev.currentTarget, async () => { if (await write(actTx, "your withdrawal", "withdraw", [])) { toast("Withdrawn to your wallet"); refresh(); } }) })
+        : h("button", { class: "btn btn-secondary block", type: "button", text: "Send it to the holder", onclick: (ev) => runButton(ev.currentTarget, async () => { if (await write(actTx, "the payout", "push_payment", [p.holder])) { toast("Sent to the holder"); refresh(); } }) })));
+  }
+  if (!actions.length) actions.push(h("p", { class: "muted small", text: "This policy is settled. Nothing is left to do." }));
+
+  put(root, back,
+    h("div", { class: "cols" },
+      h("div", { class: "stack-lg" },
+        h("section", { class: "panel stack" },
+          h("div", { class: "status-head" }, glyph(p.peril, true), h("div", { style: "min-width:0" }, h("h1", { text: head[0] }), h("p", { class: "muted small", style: "margin-top:4px", text: `${p.id}, ${p.label}, ${spec.title.toLowerCase()}` }))),
+          h("div", {}, badge(p.status)),
+          h("p", { class: "muted small", text: head[1] }),
+          h("p", { class: "rule-quote" }, "Pays ", h("b", { text: genStr(p.coverage) + " GEN" }), ` if ${PERIL_UI[p.peril].measure} `, h("span", { class: "trig", text: tenths(p.threshold_t) + unit }),
+            ` ${PERIL_UI[p.peril].tail}${p.peril === "QUAKE" ? " " + p.radius_km + " km" : ""} in ${p.label}, between ${fmtDay(p.start_date)} and ${fmtDay(p.end_date)}.`)),
+        observed,
+        h("section", { class: "panel", "aria-labelledby": "tlT" }, h("h2", { id: "tlT", style: "margin-bottom:16px", text: "Timeline" }),
+          h("ol", { class: "timeline" }, tl.map(([t, s, done], i) => h("li", { class: done ? "done" : i === firstOpen ? "now" : null }, h("span", { class: "b", "aria-hidden": "true" }),
+            h("div", {}, h("b", { text: t }), h("span", { class: "sr", text: done ? ", done" : i === firstOpen ? ", current" : "" }), h("small", { text: s }))))))),
+      h("div", { class: "stack-lg sticky" },
+        h("section", { class: "panel", "aria-labelledby": "actT" }, h("h2", { id: "actT", style: "margin-bottom:12px", text: "Actions" }), h("div", { class: "stack" }, actions), actTx.el),
+        h("section", { class: "panel", "aria-labelledby": "monT" }, h("h2", { id: "monT", style: "margin-bottom:12px", text: "Money" }),
+          h("dl", { class: "dl" },
+            h("dt", { text: "Cover" }), h("dd", { class: "num", text: genStr(p.coverage) + " GEN" }),
+            h("dt", { text: "Premium" }), h("dd", { class: "num", text: genStr(p.premium) + " GEN" }),
+            h("dt", { text: "Priced risk" }), h("dd", { text: pct(p.risk_bps) }),
+            h("dt", { text: "Holder" }), h("dd", { class: "addr", title: p.holder, text: isHolder ? "You" : short(p.holder) }),
+            h("dt", { text: "Quote" }), h("dd", { text: p.quote_id }))))));
+}
+
+/* =====================================================================
+   TEST LAB (sandbox contracts only)
+   ===================================================================== */
+const lab = { A: {}, B: {}, C: {} };
+function labScenario(key) {
+  const today = todayIso();
+  const common = { label: "Dubai", lat: "25.2048", lon: "55.2708" };
+  if (key === "A") return { ...common, title: "A payout", sub: "Heat of 25 °C or more in Dubai three weeks ago. It certainly happened, so this policy must pay.", peril: "HEAT_WAVE", thr: "25.0", start: addDays(today, -20), end: addDays(today, -14), cov: 10 };
+  if (key === "B") return { ...common, title: "No payout", sub: "A frost of -30 °C in Dubai. It cannot have happened, so the policy expires and the pool keeps the premium.", peril: "FROST", thr: "-30.0", start: addDays(today, -20), end: addDays(today, -14), cov: 5 };
+  return { ...common, title: "Void and refund", sub: "Buy cover and leave it unchecked. After the short timeout, anyone can void it for a full premium refund.", peril: "HEAT_WAVE", thr: "40.0", start: addDays(today, -20), end: addDays(today, -17), cov: 2 };
+}
+async function viewLab(root) {
+  if (gate(root)) return;
+  if (!isSandbox()) {
+    const addr = h("input", { class: "input", id: "sbIn", placeholder: "0x followed by 40 characters", autocapitalize: "off", spellcheck: "false" });
+    const err = h("p", { class: "err", role: "alert" });
+    put(root, h("div", { class: "pagehead" }, h("div", {}, h("h1", { text: "Test lab" }), h("p", { text: "A guided path through the whole product, one transaction per step." }))),
+      h("div", { class: "panel stack measure" },
+        h("h2", { text: "This is a production contract" }),
+        h("p", { class: "muted", text: "Production cover starts days after purchase and is checked after the data settles, so a full cycle takes over a week. A sandbox deployment of the same contract accepts windows that already ended, so recorded weather settles a policy in one step." }),
+        h("div", { class: "field" }, h("label", { for: "sbIn", text: "Sandbox contract address" }), addr, err),
+        h("div", { class: "actions" },
+          h("button", { class: "btn btn-primary", type: "button", text: "Open the sandbox", onclick: () => { const v = addr.value.trim(); if (okAddr(v)) location.search = "?contract=" + v; else { addr.setAttribute("aria-invalid", "true"); err.textContent = "Enter a 0x address with 40 hexadecimal characters."; } } }),
+          h("a", { class: "btn btn-secondary", href: "#/buy", text: "Buy real cover instead" }))));
+    return;
+  }
+  const poolBox = h("div");
+  async function drawPool() {
+    const tx = txPanel();
+    let pool = null;
+    try { pool = await readJson("get_pool"); } catch (e) {}
+    const funded = pool && BigInt(pool.capital) >= 100n * WEI;
+    put(poolBox, h("section", { class: "panel", "aria-label": "Seed the pool" }, h("ol", { class: "steps" }, h("li", { class: funded ? "done" : "next" }, h("span", { class: "n", text: funded ? "✓" : "1" }),
+      h("div", { class: "stack", style: "min-width:0" }, h("h3", { text: "Seed the pool with 100 GEN" }),
+        h("p", { class: "small muted", text: `Pool capital: ${pool ? genStr(pool.capital, 2) : "unknown"} GEN. The scenarios need at least 100 GEN behind them.` }),
+        funded ? null : h("button", { class: "btn btn-primary", type: "button", text: "Provide 100 GEN", onclick: (ev) => runButton(ev.currentTarget, async () => { if (await write(tx, "the deposit", "provide_liquidity", [], 100n * WEI)) drawPool(); }) }), tx.el)))));
+  }
+  function scenarioCard(key) {
+    const sc = labScenario(key), st = lab[key];
+    const box = h("section", { class: "panel", "aria-label": `Scenario ${key}: ${sc.title}` });
+    function draw() {
+      const defs = [
+        ["Price the risk", "Validators read ten years of records.", !!st.quote, async (tx) => {
+          const q = await write(tx, "the price request", "request_quote", [sc.peril, sc.label, sc.lat, sc.lon, sc.start, sc.end, sc.thr, 0]);
+          if (q && q.id) { st.quote = q; draw(); }
+        }],
+        ["Buy the policy", `${sc.cov} GEN of cover.`, !!st.policy, async (tx) => {
+          const pv = await readJson("preview_premium", [st.quote.id, sc.cov]);
+          const r = await write(tx, "the purchase", "buy_policy", [st.quote.id, sc.cov], BigInt(pv.premium_wei) * 102n / 100n);
+          if (r && r.policy_id) { st.policy = r.policy_id; st.bought = nowSec(); draw(); }
+        }],
+      ];
+      if (key !== "C") defs.push(["Run the data check", "Validators fetch the recorded weather and decide.", !!st.resolved, async (tx) => { if (await write(tx, "the data check", "resolve_policy", [st.policy])) { st.resolved = true; draw(); } }]);
+      if (key === "A") defs.push(["Send the payout", "Moves the credited payout to your wallet.", !!st.paid, async (tx) => { if (await write(tx, "the payout", "push_payment", [account])) { st.paid = true; draw(); } }]);
+      if (key === "C") defs.push(["Void after the timeout", st.bought ? `Available from ${fmtEpoch(st.bought + state.cfg.resolve_timeout_seconds)}.` : `${dur(state.cfg.resolve_timeout_seconds)} after purchase.`, !!st.voided, async (tx) => { if (await write(tx, "the void", "void_policy", [st.policy])) { st.voided = true; draw(); } }]);
+      const next = defs.findIndex((d) => !d[2]);
+      put(box,
+        h("div", { class: "row between wrap", style: "margin-bottom:4px" }, h("h2", { text: `Scenario ${key}: ${sc.title}` }),
+          st.policy ? h("a", { class: "btn btn-quiet sm", href: "#/policy/" + st.policy, text: "Open " + st.policy }) : null),
+        h("p", { class: "muted small", style: "margin-bottom:16px", text: sc.sub }),
+        h("ol", { class: "steps" }, defs.map(([t, s, done, run], i) => {
+          const tx = txPanel();
+          return h("li", { class: done ? "done" : i === next ? "next" : null }, h("span", { class: "n", text: done ? "✓" : String(i + 1) }),
+            h("div", { class: "stack", style: "min-width:0" }, h("h3", { text: t }), h("p", { class: "small muted", text: s }),
+              !done && i === next ? h("button", { class: "btn btn-primary", type: "button", text: t, onclick: (ev) => runButton(ev.currentTarget, () => run(tx)) }) : null, tx.el));
+        })),
+        next === -1 ? h("p", { class: "callout ok small", style: "margin-top:16px", text: "Scenario complete. Open the policy to see how it settled." }) : null,
+        h("button", { class: "btn btn-quiet sm", type: "button", style: "margin-top:12px", text: "Start this scenario over", onclick: () => { lab[key] = {}; draw(); } }));
+    }
+    draw();
+    return box;
+  }
+  put(root,
+    h("div", { class: "pagehead" }, h("div", {}, h("h1", { text: "Test lab" }),
+      h("p", { text: "Three short scenarios on the sandbox contract: one pays, one expires, one is voided. Each step is a real transaction checked against recorded weather." }))),
+    h("div", { class: "cols" },
+      h("div", { class: "stack-lg" }, poolBox, scenarioCard("A"), scenarioCard("B"), scenarioCard("C")),
+      h("div", { class: "stack-lg sticky" },
+        !account ? h("section", { class: "panel" }, h("h2", { text: "Start here" }), h("div", { style: "margin-top:12px" }, connectPrompt("Connect a wallet, or start a throwaway test session from the wallet menu."))) : null,
+        account ? fundCard("A new test session holds no GEN. Request test GEN first; the three scenarios need about 120 GEN in total.") : null,
+        h("section", { class: "panel" }, h("h2", { text: "What this shows" }),
+          h("ul", { class: "small muted", style: "margin:8px 0 0;padding-left:18px;display:grid;gap:6px" },
+            h("li", { text: "Prices come from consensus over real historical data." }),
+            h("li", { text: "A triggered policy pays its holder without a claim." }),
+            h("li", { text: "An untriggered policy releases its collateral to the pool." }),
+            h("li", { text: "If the data cannot be checked, the buyer is refunded in full." }))))));
+  drawPool();
+}
+
+/* ---------- router ---------- */
+const TABS = [["", "home", "Home"], ["buy", "shield", "Cover"], ["pool", "pool", "Pool"], ["policies", "list", "Policies"], ["lab", "flask", "Lab"]];
+function drawTabs(active) {
+  put($("tabs"), TABS.map(([path, ic, text]) => h("li", {}, h("a", { href: "#/" + path, "aria-current": active === path ? "page" : null }, icon(ic), h("span", { text })))));
+}
+const TITLES = { "": "ParamCover", buy: "Write your cover", pool: "Liquidity pool", policies: "Policies", lab: "Test lab" };
+let routeSeq = 0, firstRoute = true;
+async function route() {
+  const seq = ++routeSeq;
+  if (dlg.open) closeDialog(false);
+  const hash = location.hash || "#/";
+  const [pathRaw, query = ""] = hash.slice(2).split("?");
+  const params = new URLSearchParams(query);
+  const m = pathRaw.match(/^policy\/(.+)$/);
+  const name = m ? "policies" : pathRaw.split("/")[0];
+  drawTabs(TABS.some((t) => t[0] === name) ? name : "");
+  document.title = m ? `Policy ${decodeURIComponent(m[1])} – ParamCover` : name ? `${TITLES[name] || "ParamCover"} – ParamCover` : "ParamCover";
+  const root = $("app");
+  if (hasContract && !state.cfg && !state.bootError) { put(root, skel(140), skel(220)); await boot(); }
+  if (seq !== routeSeq) return;
+  window.scrollTo(0, 0);
+  try {
+    if (m) await viewPolicy(root, decodeURIComponent(m[1]));
+    else if (name === "buy") await viewBuy(root, params);
+    else if (name === "pool") await viewPool(root);
+    else if (name === "policies") await viewPolicies(root);
+    else if (name === "lab") await viewLab(root);
+    else await viewHome(root);
+    if (!firstRoute) root.focus({ preventScroll: true });
+    firstRoute = false;
+  } catch (e) {
+    put(root, h("div", { class: "panel stack", role: "alert" }, h("h1", { text: "This page could not be shown" }), h("p", { class: "muted", text: explain(e) }),
+      h("button", { class: "btn btn-primary", type: "button", text: "Reload", onclick: () => route() })));
+  }
+}
+window.addEventListener("hashchange", route);
+if (readTestKey()) { try { startTestSession(true); } catch (e) { writeTestKey(""); } }
+drawWallet();
+route();
+</script>
+</body>
+</html>
