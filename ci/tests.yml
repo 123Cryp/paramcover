@@ -1,0 +1,32 @@
+name: Offline tests
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.zip"
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sandbox build is up to date
+        run: python3 tools/make_sandbox.py --check
+
+      - name: Tests against contract.py
+        run: python3 -m unittest discover -s tests
+
+      - name: Tests against contract_sandbox.py
+        run: python3 -m unittest discover -s tests
+        env:
+          PC_CONTRACT: ${{ github.workspace }}/contract_sandbox.py
